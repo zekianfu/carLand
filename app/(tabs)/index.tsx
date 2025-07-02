@@ -4,14 +4,13 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { ActivityIndicator, FlatList, Text, useWindowDimensions, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CarCard from '../../components/carCard';
-import { CarListSkeleton } from '../../components/common/SkeletonLoader';
-import FeaturedCars from '../../components/FeaturedCars';
-import FilterBar from '../../components/feed/FilterBar';
-
-import { useDebounce } from '../../hooks/useDebounce';
-import { subscribeToCars } from '../../services/firebaseService';
-import { Car, CarFilters } from '../../types';
+import CarCard from '@/components/carCard';
+import { CarListSkeleton } from '@/components/common/SkeletonLoader';
+import FeaturedCars from '@/components/FeaturedCars';
+import FilterBar from '@/components/feed/FilterBar';
+import { useDebounce } from '@/hooks/useDebounce';
+import { subscribeToCars } from '@/services/firebaseService';
+import { Car, CarFilters } from '@/types';
 
 const getNumColumns = (width: number) => {
   if (width >= 1280) return 4; // xl screens

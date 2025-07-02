@@ -188,13 +188,15 @@ const CarDetailScreen: React.FC = () => {
     ];
 
     return (
-      <View style={styles.specChipContainer}>
+      // Replaced styles.specChipContainer with NativeWind classes for flex wrapping
+      <View className="flex-row flex-wrap gap-2 my-2">
         {specs.filter(spec => spec.label).map((spec, index) => {
           const IconComponent = spec.iconLib;
           return (
             <SpecChip
               key={index}
-              icon={<IconComponent name={spec.iconName as any} size={16} color={screenStyles.blue} />}
+              // Replaced screenStyles.blue with NativeWind class text-blue-600 (adjust color as needed)
+              icon={<IconComponent name={spec.iconName as any} size={16} className="text-blue-600" />}
               label={spec.label!}
             />
           );
@@ -204,9 +206,9 @@ const CarDetailScreen: React.FC = () => {
   }, [carData]);
 
 
-  // Example NativeWind classes for colors
-  const amber = 'text-amber-400';
-  const blue = 'text-blue-500';
+  // Example NativeWind classes for colors (can be removed if not used elsewhere, or kept for reference)
+  // const amber = 'text-amber-400';
+  // const blue = 'text-blue-500'; // This was a reference, actual color used above is text-blue-600
   const darkGray = 'bg-gray-900';
   const mediumGray = 'bg-gray-700';
   const white = 'text-white';
@@ -250,7 +252,7 @@ const CarDetailScreen: React.FC = () => {
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={e => setImgIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
                 renderItem={({ item }) => (
-                  <Image source={{ uri: item }} className="w-full h-56 rounded-lg" />
+                  <Image source={{ uri: item }} className="w-full h-56 sm:h-64 md:h-72 lg:h-80 xl:h-96 rounded-lg" /> // Responsive height
                 )}
               />
               {carImages.length > 1 && (
