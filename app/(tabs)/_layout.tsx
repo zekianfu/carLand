@@ -2,16 +2,21 @@ import { Tabs } from 'expo-router';
 import React from 'react';
 import { StyleSheet, Image, Platform } from 'react-native';
 import { BlurView } from 'expo-blur';
-import images from '../../constant/images'; // Corrected path
+import images from '@/constant/images'; // Changed to alias
 
 // Custom component for tabBarIcon
+const amberColor = '#F59E0B'; // Consistent amber
+const inactiveTabColor = '#9CA3AF'; // Tailwind gray-400, good for dark backgrounds
+const darkBackgroundColor = 'rgba(31, 41, 55, 0.85)'; // Dark gray with transparency for Android tab bar
+const darkerBlurTintColor = 'dark'; // For iOS BlurView
+
 const TabBarIcon = ({ focused, icon }: any) => (
   <Image
     source={icon}
     style={{
       width: 24,
       height: 24,
-      tintColor: focused ? '#007AFF' : '#222',
+      tintColor: focused ? amberColor : inactiveTabColor, // Use defined colors
     }}
     resizeMode="contain"
   />
@@ -19,8 +24,8 @@ const TabBarIcon = ({ focused, icon }: any) => (
 
 const CustomTabBarBackground = (props: any) => (
   <BlurView
-    intensity={80}
-    tint="light"
+    intensity={90} // Slightly more intense blur
+    tint={darkerBlurTintColor} // Darker tint for better harmony with dark theme
     style={[StyleSheet.absoluteFill, { borderRadius: 16, overflow: 'hidden' }]}
     {...props}
   />
@@ -30,25 +35,32 @@ const Layout = () => {
   return (
     <Tabs
       screenOptions={{
+        headerShown: false, // Most screens in tabs hide header, individual screens can override
         tabBarShowLabel: true,
-        tabBarActiveTintColor: '#007AFF',
-        tabBarInactiveTintColor: '#222',
+        tabBarActiveTintColor: amberColor, // Use amber for active tint
+        tabBarInactiveTintColor: inactiveTabColor, // Use light gray for inactive tint
         tabBarStyle: {
           position: 'absolute',
-          bottom: 0,
+          bottom: Platform.OS === 'ios' ? 20 : 10, // Adjusted bottom for aesthetics
           left: 16,
           right: 16,
-          elevation: 0,
-          borderRadius: 16,
+          elevation: 0, // Remove platform shadow, rely on BlurView/custom shadow
+          borderRadius: 20, // Slightly more rounded
           borderTopWidth: 0,
-          backgroundColor: Platform.OS === 'android' ? 'rgba(75, 75, 75, 0.39)' : 'transparent',
+          backgroundColor: Platform.OS === 'android' ? darkBackgroundColor : 'transparent', // Darker background for Android
           overflow: 'hidden',
-          shadowColor: '#000',
-          shadowOpacity: 0.08,
-          shadowRadius: 12,
-          shadowOffset: { width: 0, height: 4 },
+          // shadowColor: '#000', // Keep shadow for depth, adjust if needed
+          // shadowOpacity: 0.1,
+          // shadowRadius: 10,
+          // shadowOffset: { width: 0, height: -3 }, // Shadow upwards
         },
         tabBarBackground: () => <CustomTabBarBackground />,
+        // Default header styles for any screen within tabs that might show a header
+        // These will be overridden by app/_layout.tsx global screenOptions if not specified here
+        // However, explicit styling here ensures tabs have their desired look if a header is shown.
+        headerStyle: { backgroundColor: '#1F2937' },
+        headerTintColor: '#FFFFFF',
+        headerTitleStyle: { fontWeight: 'bold' },
       }}
     >
       <Tabs.Screen

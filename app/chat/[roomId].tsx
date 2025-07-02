@@ -5,7 +5,7 @@ import {
   TextInput,
   TouchableOpacity,
   FlatList,
-  StyleSheet,
+  // StyleSheet, // Removed
   ActivityIndicator,
   KeyboardAvoidingView,
   Platform,
@@ -176,66 +176,68 @@ const ChatRoomScreen: React.FC = () => {
 
   if (!roomId) { // Should be caught by useEffect earlier, but good check
     return (
-        <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.errorContainer}>
+        <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1 justify-center items-center">
             <Stack.Screen options={{ title: "Error" }} />
-            <Text style={styles.errorText}>Chat room not specified.</Text>
+            <Text className="text-red-300 text-base">Chat room not specified.</Text>
         </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#1F2937', '#4B5563']} style={{flex:1}}>
-    <SafeAreaView style={styles.safeArea} edges={['bottom', 'left', 'right']}>
+    <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
+    <SafeAreaView className="flex-1" edges={['bottom', 'left', 'right']}>
       <Stack.Screen
         options={{
             title: '', // Clear default title
-            headerTitle: () => ( // Custom header title component
-                <View style={styles.headerTitleContainer}>
-                    {otherUserProfilePic && <Image source={{uri: otherUserProfilePic}} style={styles.headerAvatar} />}
-                    <Text style={styles.headerName}>{otherUserName}</Text>
+            headerTitle: () => (
+                <View className="flex-row items-center">
+                    {otherUserProfilePic && <Image source={{uri: otherUserProfilePic}} className="w-[30px] h-[30px] rounded-full mr-2.5" />}
+                    <Text className="text-[17px] font-semibold text-white">{otherUserName}</Text>
                 </View>
             ),
         }}
       />
       <KeyboardAvoidingView
-        style={styles.keyboardAvoidingView}
+        className="flex-1"
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0} // Adjust as needed
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 60 : 0}
       >
         {loading && messages.length === 0 ? (
-          <View style={styles.centeredMessage}><ActivityIndicator size="large" color="#F59E0B" /></View>
+          <View className="flex-1 justify-center items-center"><ActivityIndicator size="large" color="#F59E0B" /></View>
         ) : error ? (
-          <View style={styles.centeredMessage}><Text style={styles.errorText}>{error}</Text></View>
+          <View className="flex-1 justify-center items-center"><Text className="text-red-300 text-base">{error}</Text></View>
         ) : (
           <FlatList
             ref={flatListRef}
             data={messages}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <MessageBubble message={item} currentUserId={user!.uid} /> // user is guaranteed to exist here by earlier checks
+              <MessageBubble message={item} currentUserId={user!.uid} />
             )}
-            contentContainerStyle={styles.listContentContainer}
+            contentContainerStyle={{ paddingTop: 10, paddingBottom: 10, paddingHorizontal: 5 }}
             ListHeaderComponent={
-              loadingMore ? <ActivityIndicator size="small" color="#FFF" style={{ marginVertical: 10 }} /> : null
+              loadingMore ? <ActivityIndicator size="small" color="#FFF" className="my-2.5" /> : null
             }
-            onStartReached={handleLoadMoreMessages} // Using onStartReached for loading older (top)
+            onStartReached={handleLoadMoreMessages}
             onStartReachedThreshold={0.1}
             showsVerticalScrollIndicator={false}
-            // onLayout={() => flatListRef.current?.scrollToEnd({ animated: false })} // Initial scroll
-            // onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })} // Subsequent scrolls
           />
         )}
 
-        <View style={styles.inputContainer}>
+        <View className="flex-row items-center px-2.5 py-2 border-t border-gray-700 bg-gray-800">
           <TextInput
-            style={styles.textInput}
+            className="flex-1 min-h-[40px] max-h-[120px] bg-gray-700 rounded-full px-4 py-2.5 text-[15px] text-gray-100 mr-2.5"
             value={newMessageText}
             onChangeText={setNewMessageText}
             placeholder="Type a message..."
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#9CA3AF" // gray-400
             multiline
           />
-          <TouchableOpacity style={styles.sendButton} onPress={handleSendMessage} disabled={newMessageText.trim() === ''}>
+          <TouchableOpacity
+            className="p-2.5 rounded-full bg-blue-500 active:bg-blue-600" // Added active state for feedback
+            onPress={handleSendMessage}
+            disabled={newMessageText.trim() === ''}
+          >
             <Ionicons name="send" size={22} color={newMessageText.trim() === '' ? "#6B7280" : "#FFFFFF"} />
           </TouchableOpacity>
         </View>
@@ -245,73 +247,6 @@ const ChatRoomScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    // backgroundColor: '#111827', // Dark background for chat room
-  },
-  keyboardAvoidingView: {
-    flex: 1,
-  },
-  headerTitleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  headerAvatar: {
-    width: 30,
-    height: 30,
-    borderRadius: 15,
-    marginRight: 10,
-  },
-  headerName: {
-    fontSize: 17,
-    fontWeight: '600',
-    color: '#FFFFFF', // White for dark header
-  },
-  centeredMessage: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  errorText: {
-    color: '#FCA5A5', // Tailwind red-300
-    fontSize: 16,
-  },
-  listContentContainer: {
-    paddingVertical: 10,
-    paddingHorizontal: 5,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderTopWidth: 1,
-    borderTopColor: '#374151', // Tailwind gray-700 (darker border for dark theme)
-    backgroundColor: '#1F2937', // Tailwind gray-800 (darker input area)
-  },
-  textInput: {
-    flex: 1,
-    minHeight: 40,
-    maxHeight: 120, // Allow for multiple lines
-    backgroundColor: '#374151', // Tailwind gray-700
-    borderRadius: 20,
-    paddingHorizontal: 15,
-    paddingVertical: 10, // Adjust for multiline
-    fontSize: 15,
-    color: '#F3F4F6', // Tailwind gray-100
-    marginRight: 10,
-  },
-  sendButton: {
-    padding: 10,
-    borderRadius: 25,
-    backgroundColor: '#3B82F6', // Tailwind blue-500
-  },
-});
+// StyleSheet.create block removed
 
 export default ChatRoomScreen;

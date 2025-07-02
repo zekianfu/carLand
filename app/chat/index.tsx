@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableOpacity } from 'react-native'; // Removed StyleSheet
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
+// Removed StyleSheet import, NativeWind classes will be used directly.
 import { LinearGradient } from 'expo-linear-gradient';
 
 import ChatListItem from '@/components/chat/ChatListItem'; // Adjusted path
@@ -71,9 +72,9 @@ const ChatListScreen: React.FC = () => {
   // Show loader while auth state is initially loading
   if (authIsLoading || (!user && loadingData)) { // Also show loader if user is null but we are still in initial data load phase
     return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.fullScreenLoader}>
+      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#F59E0B" />
-        <Text style={styles.loadingText}>Loading...</Text>
+        <Text className="mt-2.5 text-base text-gray-100">Loading...</Text>
       </LinearGradient>
     );
   }
@@ -82,10 +83,10 @@ const ChatListScreen: React.FC = () => {
   // This state should ideally be prevented by root layout redirects.
   if (!user) {
      return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.fullScreenLoader}>
-        <Text style={styles.errorText}>{error || "Please log in to see your chats."}</Text>
-        <TouchableOpacity onPress={() => router.push('/(auth)/login')} style={styles.loginButton}>
-            <Text style={styles.loginButtonText}>Go to Login</Text>
+      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1 justify-center items-center p-5">
+        <Text className="text-base text-red-300 text-center mb-4">{error || "Please log in to see your chats."}</Text>
+        <TouchableOpacity onPress={() => router.push('/(auth)/login')} className="bg-amber-500 py-3 px-8 rounded-lg mt-2">
+            <Text className="text-white text-base font-semibold">Go to Login</Text>
         </TouchableOpacity>
       </LinearGradient>
     );
@@ -94,17 +95,17 @@ const ChatListScreen: React.FC = () => {
   // If logged in, but data is still loading for chats
   if (loadingData) {
     return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.fullScreenLoader}>
+      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1 justify-center items-center">
         <ActivityIndicator size="large" color="#F59E0B" />
-        <Text style={styles.loadingText}>Loading Chats...</Text>
+        <Text className="mt-2.5 text-base text-gray-100">Loading Chats...</Text>
       </LinearGradient>
     );
   }
 
   if (error && !loadingData) { // Show error only if not loading
     return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.fullScreenLoader}>
-        <Text style={styles.errorText}>{error}</Text>
+      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1 justify-center items-center p-5">
+        <Text className="text-base text-red-300 text-center">{error}</Text>
       </LinearGradient>
     );
   }
@@ -117,13 +118,13 @@ const ChatListScreen: React.FC = () => {
   };
 
   return (
-    <LinearGradient colors={['#1F2937', '#4B5563']} style={{flex:1}}>
-    <SafeAreaView style={styles.safeArea}>
+    <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
+    <SafeAreaView className="flex-1">
       <Stack.Screen options={{ title: 'My Chats' }} />
       {chatRooms.length === 0 ? (
-        <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>You have no active chats.</Text>
-          <Text style={styles.emptySubText}>Start a conversation from a car listing!</Text>
+        <View className="flex-1 justify-center items-center px-5">
+          <Text className="text-lg font-semibold text-gray-300 mb-2">You have no active chats.</Text>
+          <Text className="text-sm text-gray-400 text-center">Start a conversation from a car or parts listing!</Text>
         </View>
       ) : (
         <FlatList
@@ -136,7 +137,8 @@ const ChatListScreen: React.FC = () => {
               onPress={handleChatItemPress}
             />
           )}
-          contentContainerStyle={styles.listContentContainer}
+          // Use contentContainerStyle for padding inside the scroll area of FlatList
+          contentContainerStyle={{ paddingBottom: 20, paddingTop:8 }} // Added paddingTop for spacing from header
         />
       )}
     </SafeAreaView>
@@ -144,47 +146,6 @@ const ChatListScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  fullScreenLoader: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 16,
-    color: '#F3F4F6', // Tailwind gray-100
-  },
-  errorText: {
-    fontSize: 16,
-    color: '#FCA5A5', // Tailwind red-300
-    textAlign: 'center',
-    paddingHorizontal: 20,
-  },
-  emptyContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  emptyText: {
-    fontSize: 18,
-    fontWeight: '600',
-    color: '#D1D5DB', // Tailwind gray-300
-    marginBottom: 8,
-  },
-  emptySubText: {
-    fontSize: 14,
-    color: '#9CA3AF', // Tailwind gray-400
-    textAlign: 'center',
-  },
-  listContentContainer: {
-    paddingBottom: 20,
-    // backgroundColor: '#111827' // Example: Dark background for list items if needed
-  }
-});
+// StyleSheet.create block removed as styles are converted to NativeWind classes.
 
 export default ChatListScreen;
