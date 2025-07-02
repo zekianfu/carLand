@@ -1,8 +1,8 @@
-import React, { useEffect } from 'react';
+
 import { Stack, useRouter, useSegments } from "expo-router";
-import { ActivityIndicator, View, StyleSheet } from 'react-native'; // For basic loading
+import React, { useEffect } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native'; // For basic loading
 import { AuthProvider, useAuth } from '../context/AuthContext'; // Adjusted path
-import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 import './global.css'; // Assuming this is for NativeWind or similar
 

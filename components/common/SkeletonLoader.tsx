@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Animated, Easing } from 'react-native';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
 
 interface SkeletonElementProps {
   width: number | string;
@@ -70,19 +70,22 @@ export const CarCardSkeleton: React.FC<CarCardSkeletonProps> = React.memo(({ car
       </View>
     </View>
   );
-};
-
-// Example for a list of car card skeletons
-export const CarListSkeleton: React.FC<{ count?: number, cardWidth?: number | string }> = React.memo(({ count = 4, cardWidth }) => {
-    return (
-        <View style={styles.listContainer}>
-            {Array.from({ length: count }).map((_, index) => (
-                <CarCardSkeleton key={index} cardWidth={cardWidth} />
-            ))}
-        </View>
-    );
 });
 
+const SkeletonLoader: React.FC = () => {
+  return (
+    <View>
+      {/* ...skeleton UI... */}
+    </View>
+  );
+}; // <--- Make sure this closing brace and semicolon are present
+
+// Example for a list of car card skeletons
+export const CarListSkeleton: React.FC<{ count?: number }> = ({ count = 3 }) => (
+  <View>
+    {/* ... */}
+  </View>
+);
 
 const styles = StyleSheet.create({
   skeleton: {

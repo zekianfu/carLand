@@ -3,41 +3,21 @@
 // If you need those, expand this mock.
 
 export class Timestamp {
-  readonly seconds: number;
-  readonly nanoseconds: number;
-
-  constructor(seconds: number, nanoseconds: number) {
-    this.seconds = seconds;
-    this.nanoseconds = nanoseconds;
+  private date: Date;
+  constructor(date: Date) {
+    this.date = date;
   }
-
-  static now(): Timestamp {
-    const now = Date.now();
-    const seconds = Math.floor(now / 1000);
-    const nanoseconds = (now % 1000) * 1e6;
-    return new Timestamp(seconds, nanoseconds);
+  static now() {
+    return new Timestamp(new Date());
   }
-
-  static fromDate(date: Date): Timestamp {
-    const seconds = Math.floor(date.getTime() / 1000);
-    const nanoseconds = (date.getTime() % 1000) * 1e6;
-    return new Timestamp(seconds, nanoseconds);
+  static fromDate(date: Date) {
+    return new Timestamp(date);
   }
-
-  toDate(): Date {
-    return new Date(this.seconds * 1000 + this.nanoseconds / 1e6);
+  toDate() {
+    return this.date;
   }
-
-  toMillis(): number {
-    return this.seconds * 1000 + this.nanoseconds / 1e6;
-  }
-
-  isEqual(other: Timestamp): boolean {
-    return this.seconds === other.seconds && this.nanoseconds === other.nanoseconds;
-  }
-
-  valueOf() {
-    return this.toMillis();
+  getTime() {
+    return this.date.getTime();
   }
 }
 

@@ -1,25 +1,29 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { StyleSheet, View, FlatList, ActivityIndicator, Text, Dimensions } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
-import { FirebaseFirestoreTypes } from '@react-native-firebase/firestore';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { ActivityIndicator, FlatList, Text, useWindowDimensions, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import CarCard from '../../components/carCard'; // Adjusted path
-import FeaturedCars from '../../components/FeaturedCars'; // Adjusted path
-import FilterBar from '../../components/feed/FilterBar'; // Adjusted path
-import { CarListSkeleton } from '../../components/common/SkeletonLoader'; // Adjusted path
+import CarCard from '../../components/carCard';
+import { CarListSkeleton } from '../../components/common/SkeletonLoader';
+import FeaturedCars from '../../components/FeaturedCars';
+import FilterBar from '../../components/feed/FilterBar';
 
-import { subscribeToCars } from '../../services/firebaseService'; // Adjusted path
-import { Car, CarFilters } from '../../types'; // Adjusted path
-import { useDebounce } from '../../hooks/useDebounce'; // Will need to create this hook
+import { useDebounce } from '../../hooks/useDebounce';
+import { subscribeToCars } from '../../services/firebaseService';
+import { Car, CarFilters } from '../../types';
 
-const { width } = Dimensions.get('window');
-const cardWidth = width * 0.47;
-
+const getNumColumns = (width: number) => {
+  if (width >= 1280) return 4; // xl screens
+  if (width >= 1024) return 3; // lg screens
+  if (width >= 768) return 2;  // md screens
+  return 1; // mobile
+};
 
 const FeedScreen: React.FC = () => {
   const router = useRouter();
+  const { width } = useWindowDimensions();
+  const numColumns = getNumColumns(width);
 
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -27,30 +31,26 @@ const FeedScreen: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [filters, setFilters] = useState<CarFilters>({});
-  const debouncedSearchTerm = useDebounce(filters.searchTerm, 500); // Debounce search term
+  const debouncedSearchTerm = useDebounce(filters.searchTerm, 500);
 
-  const [lastVisibleDoc, setLastVisibleDoc] = useState<FirebaseFirestoreTypes.DocumentSnapshot | null>(null);
+  const [lastVisibleDoc, setLastVisibleDoc] = useState<any>(null);
   const [hasMore, setHasMore] = useState(true);
 
-  const currentFilters = useMemo(() => {
-    return {
-        ...filters,
-        searchTerm: debouncedSearchTerm, // Use debounced term for querying
-    };
-  }, [filters, debouncedSearchTerm]);
+  const currentFilters = useMemo(() => ({
+    ...filters,
+    searchTerm: debouncedSearchTerm,
+  }), [filters, debouncedSearchTerm]);
 
-
-  // Effect for initial load and filter changes
   useEffect(() => {
     setLoading(true);
-    setCars([]); // Clear cars when filters change for a fresh load
-    setLastVisibleDoc(null); // Reset pagination
+    setCars([]);
+    setLastVisibleDoc(null);
     setHasMore(true);
 
     const unsubscribe = subscribeToCars(
       currentFilters,
-      null, // Start from the beginning
-      10, // Page size
+      null,
+      10,
       (fetchedCars, newLastVisible, moreAvailable) => {
         setCars(fetchedCars);
         setLastVisibleDoc(newLastVisible);
@@ -58,15 +58,14 @@ const FeedScreen: React.FC = () => {
         setLoading(false);
         setError(null);
       },
-      (err) => {
-        console.error("Error fetching cars:", err);
+      () => {
         setError("Failed to load cars. Please try again.");
         setLoading(false);
       }
     );
 
     return () => unsubscribe();
-  }, [currentFilters]); // Re-run when debouncedSearchTerm or other filters change
+  }, [currentFilters]);
 
   const handleLoadMore = useCallback(() => {
     if (!hasMore || loadingMore || loading) return;
@@ -77,21 +76,17 @@ const FeedScreen: React.FC = () => {
       lastVisibleDoc,
       10,
       (fetchedCars, newLastVisible, moreAvailable) => {
-        setCars((prevCars) => [...prevCars, ...fetchedCars]);
+        setCars(prev => [...prev, ...fetchedCars]);
         setLastVisibleDoc(newLastVisible);
         setHasMore(moreAvailable);
         setLoadingMore(false);
-        // Unsubscribe immediately after fetching a page for load more
-        // Real-time updates are primarily for the initial set or filter changes
         unsubscribe();
       },
-      (err) => {
-        console.error("Error loading more cars:", err);
+      () => {
         setLoadingMore(false);
         unsubscribe();
       }
     );
-    // We don't return this unsubscribe here as it's short-lived for pagination.
   }, [hasMore, loadingMore, loading, currentFilters, lastVisibleDoc]);
 
   const handleApplyFilters = useCallback((newFilters: CarFilters) => {
@@ -99,19 +94,22 @@ const FeedScreen: React.FC = () => {
   }, []);
 
   const navigateToCarDetails = (carId: string) => {
-    router.push(`/buyDetail/carDetail?carId=${carId}`); // Adjust path as per your car detail screen
-    // Or using object: router.push({ pathname: '/buyDetail/carDetail', params: { carId } });
+    router.push(`/buyDetail/carDetail?carId=${carId}`);
   };
 
   const renderCarItem = ({ item }: { item: Car }) => (
-    <CarCard car={item} onPress={navigateToCarDetails} />
+    <View
+      className="p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4 max-w-[400px] min-w-[250px] self-center"
+    >
+      <CarCard car={item} onPress={navigateToCarDetails} />
+    </View>
   );
 
   const ListEmptyComponent = () => {
-    if (loading) return null; // Skeleton is handled by main loading state
+    if (loading) return null;
     return (
-      <View style={styles.emptyStateContainer}>
-        <Text style={styles.emptyStateText}>
+      <View className="flex-1 justify-center items-center p-8 mt-12">
+        <Text className="text-base text-gray-400 text-center">
           {error ? error : "No cars found matching your criteria. Try adjusting the filters!"}
         </Text>
       </View>
@@ -120,85 +118,53 @@ const FeedScreen: React.FC = () => {
 
   const ListFooterComponent = () => {
     if (loadingMore) {
-      return <ActivityIndicator size="large" color="#FFF" style={{ marginVertical: 20 }} />;
+      return <ActivityIndicator size="large" color="#FFF" className="my-5" />;
     }
     if (!hasMore && !loading && cars.length > 0) {
-      return <Text style={styles.noMoreCarsText}>You've seen all cars!</Text>;
+      return <Text className="text-center text-gray-400 py-5 text-sm">You've seen all cars!</Text>;
     }
     return null;
   };
 
+  // 🧊 Skeleton loader state
   if (loading && cars.length === 0 && !error) {
     return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.gradient}>
-        <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
+        <SafeAreaView className="flex-1 px-2 md:px-8 xl:px-24">
           <FilterBar onApplyFilters={handleApplyFilters} initialFilters={filters} />
-          <CarListSkeleton cardWidth={cardWidth} />
+          <CarListSkeleton />
         </SafeAreaView>
       </LinearGradient>
     );
   }
 
   return (
-    <LinearGradient colors={['#1F2937', '#4B5563']} style={styles.gradient}>
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
+    <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
+      <SafeAreaView className="flex-1 px-2 md:px-8 xl:px-24">
         <FlatList
           data={cars}
           renderItem={renderCarItem}
           keyExtractor={(item) => item.id}
-          numColumns={2}
+          numColumns={numColumns}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContentContainer}
-          columnWrapperStyle={styles.columnWrapper}
+          contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
+          // 🪄 keep last row left‑aligned
+          columnWrapperStyle={numColumns > 1 ? { justifyContent: 'flex-start' } : undefined}
           ListHeaderComponent={
             <>
               <FilterBar onApplyFilters={handleApplyFilters} initialFilters={filters} />
               <FeaturedCars />
-              <View style={{ height: 16 }} />
+              <View className="h-4" />
             </>
           }
           ListEmptyComponent={ListEmptyComponent}
           ListFooterComponent={ListFooterComponent}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5} // How far from the end (in units of visible length) to trigger
+          onEndReachedThreshold={0.5}
         />
       </SafeAreaView>
     </LinearGradient>
   );
 };
-
-const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
-  safeArea: {
-    flex: 1,
-  },
-  listContentContainer: {
-    paddingHorizontal: 4, // For space around the 2 columns
-    paddingBottom: 24,
-  },
-  columnWrapper: {
-    justifyContent: 'space-around', // Distribute space evenly around cards
-  },
-  emptyStateContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-    marginTop: 50,
-  },
-  emptyStateText: {
-    fontSize: 16,
-    color: '#D1D5DB', // Tailwind gray-300
-    textAlign: 'center',
-  },
-  noMoreCarsText: {
-    textAlign: 'center',
-    color: '#9CA3AF', // Tailwind gray-400
-    paddingVertical: 20,
-    fontSize: 14,
-  },
-});
 
 export default FeedScreen;

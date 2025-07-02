@@ -18,15 +18,15 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 
 
-import MessageBubble from '../../../components/chat/MessageBubble'; // Adjusted path
-import { ChatMessage, UserProfile } from '../../../types'; // Adjusted path
+import MessageBubble from '@/components/chat/MessageBubble'; // Adjusted path
+import { ChatMessage, UserProfile } from '@/types'; // Adjusted path
 import {
   subscribeToMessages,
   sendMessage,
   markMessagesAsRead,
   // getUserProfile, // No longer needed here as profile comes from context
-} from '../../../services/firebaseService'; // Adjusted path
-import { useAuth } from '../../../context/AuthContext'; // Import useAuth
+} from '@/services/firebaseService'; // Adjusted path
+import { useAuth } from '@/context/AuthContext'; // Import useAuth
 
 // Mock current user ID will be removed.
 

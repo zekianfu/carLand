@@ -1,27 +1,24 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import { Feather, Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+import React, { useEffect, useMemo, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  Image,
-  ScrollView,
-  StyleSheet,
+  ActivityIndicator,
   Dimensions,
   FlatList,
+  Image,
   Linking,
-  ActivityIndicator,
+  ScrollView,
   Share,
+  Text,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { LinearGradient } from 'expo-linear-gradient';
-import { Ionicons, Feather, MaterialIcons } from '@expo/vector-icons';
-import { useLocalSearchParams, useRouter, Stack } from 'expo-router';
 
-import { Car, UserProfile } from '../../../types'; // Adjusted path
-import { subscribeToCarById, getUserProfile, getOrCreateOneOnOneChatRoom } from '../../../services/firebaseService'; // Adjusted path
-import { useAuth } from '../../../context/AuthContext'; // Import useAuth
-import DetailSectionCard from '../../../components/details/DetailSectionCard'; // Import new component
-import SpecChip from '../../../components/details/SpecChip'; // Import new component
+import SpecChip from '@/components/details/SpecChip';
+import { useAuth } from '@/context/AuthContext';
+import { getOrCreateOneOnOneChatRoom, getUserProfile, subscribeToCarById } from '@/services/firebaseService';
+import { Car, UserProfile } from '@/types'; // Adjusted path
 // import CarCard from '../../../components/carCard'; // For similar cars, if implemented
 
 
@@ -207,42 +204,44 @@ const CarDetailScreen: React.FC = () => {
   }, [carData]);
 
 
+  // Example NativeWind classes for colors
+  const amber = 'text-amber-400';
+  const blue = 'text-blue-500';
+  const darkGray = 'bg-gray-900';
+  const mediumGray = 'bg-gray-700';
+  const white = 'text-white';
+
   if (loading) {
     return (
-      <LinearGradient colors={[styles.darkGray, styles.mediumGray]} style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color={styles.amber} />
-        <Text style={styles.loadingText}>Loading Car Details...</Text>
-      </LinearGradient>
+      <View className="flex-1 justify-center items-center p-5 bg-gradient-to-b from-gray-900 to-gray-700">
+        <ActivityIndicator size="large" color="#F59E0B" />
+        <Text className="mt-4 text-base text-gray-200">Loading Car Details...</Text>
+      </View>
     );
   }
 
   if (error || !carData) {
     return (
-      <LinearGradient colors={[styles.darkGray, styles.mediumGray]} style={styles.loadingContainer}>
-         <Stack.Screen options={{ title: "Error" }} />
-        <Ionicons name="alert-circle-outline" size={48} color={styles.amber} />
-        <Text style={styles.errorText}>{error || 'Could not load car details.'}</Text>
-        <TouchableOpacity onPress={() => router.back()} style={styles.backButton}>
-            <Text style={styles.backButtonText}>Go Back</Text>
+      <View className="flex-1 justify-center items-center p-5 bg-gradient-to-b from-gray-900 to-gray-700">
+        <Ionicons name="alert-circle-outline" size={48} color="#F59E0B" />
+        <Text className="mt-4 text-base text-amber-400 text-center mb-5">{error || 'Could not load car details.'}</Text>
+        <TouchableOpacity onPress={() => router.back()} className="bg-amber-400 px-5 py-2 rounded-lg">
+          <Text className="text-gray-900 font-bold text-base">Go Back</Text>
         </TouchableOpacity>
-      </LinearGradient>
+      </View>
     );
   }
 
   const carImages = carData.images || [];
   const currentCondition = carData.condition === 'New' ? 'New' : carData.isNegotiable ? 'Negotiable' : 'Used';
-  const conditionBgColor = carData.condition === 'New' ? styles.blue.color : carData.isNegotiable ? styles.amber.color : 'rgba(31,41,55,0.8)';
-
 
   return (
-    <LinearGradient colors={[styles.darkGray, styles.mediumGray]} style={styles.gradient}>
-      <Stack.Screen options={{ title: carData.name || "Car Details" }} />
-      <SafeAreaView style={styles.safeArea} edges={['top', 'left', 'right']}>
-        {/* Header is handled by Stack.Screen now */}
-        <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContentContainer}>
+    <View className="flex-1 bg-gradient-to-b from-gray-900 to-gray-700">
+      <SafeAreaView className="flex-1">
+        <ScrollView showsVerticalScrollIndicator={false} contentContainerClassName="pb-24">
           {/* Image Carousel */}
           {carImages.length > 0 ? (
-            <View style={styles.carouselContainer}>
+            <View className="mb-3">
               <FlatList
                 data={carImages}
                 keyExtractor={(_, i) => i.toString()}
@@ -251,245 +250,129 @@ const CarDetailScreen: React.FC = () => {
                 showsHorizontalScrollIndicator={false}
                 onMomentumScrollEnd={e => setImgIndex(Math.round(e.nativeEvent.contentOffset.x / width))}
                 renderItem={({ item }) => (
-                  <Image source={{ uri: item }} style={styles.carouselImage} />
+                  <Image source={{ uri: item }} className="w-full h-56 rounded-lg" />
                 )}
               />
               {carImages.length > 1 && (
-                <View style={styles.carouselIndicatorContainer}>
+                <View className="absolute bottom-3 left-0 right-0 flex-row justify-center">
                   {carImages.map((_, i) => (
-                    <View key={i} style={[styles.carouselIndicator, { backgroundColor: imgIndex === i ? styles.amber.color : 'rgba(255,255,255,0.5)' }]}/>
+                    <View key={i} className={`w-2 h-2 rounded-full mx-1 ${imgIndex === i ? 'bg-amber-400' : 'bg-white/50'}`} />
                   ))}
                 </View>
               )}
-              <View style={styles.badgeContainer}>
-                <View style={[styles.badge, { backgroundColor: conditionBgColor }]}>
-                  <Text style={styles.badgeText}>{currentCondition}</Text>
+              <View className="absolute top-3 left-3 flex-row space-x-2">
+                <View className={`px-3 py-1 rounded-full ${carData.condition === 'New' ? 'bg-blue-500' : carData.isNegotiable ? 'bg-amber-400' : 'bg-gray-900/80'}`}>
+                  <Text className="text-xs font-bold text-white uppercase">{currentCondition}</Text>
                 </View>
                 {carData.status === 'Sold' && (
-                  <View style={[styles.badge, styles.soldBadge]}>
-                    <Text style={styles.badgeText}>Sold</Text>
+                  <View className="px-3 py-1 rounded-full bg-gray-500/80">
+                    <Text className="text-xs font-bold text-white uppercase">Sold</Text>
                   </View>
                 )}
               </View>
             </View>
           ) : (
-            <View style={[styles.carouselImage, styles.imagePlaceholder]}>
-                 <Ionicons name="image-outline" size={60} color="#9ca3af" />
+            <View className="w-full h-56 bg-gray-200 justify-center items-center rounded-lg">
+              <Ionicons name="image-outline" size={60} color="#9ca3af" />
             </View>
           )}
 
           {/* Car Details Card */}
-          <View style={styles.detailsCard}>
-            <Text style={styles.carName}>{carData.name}</Text>
-            <View style={styles.priceRow}>
-              <Text style={styles.priceText}>
+          <View className="bg-white/80 rounded-2xl mx-4 mb-4 p-4 shadow">
+            <Text className="text-2xl font-bold text-gray-900 mb-1">{carData.name}</Text>
+            <View className="flex-row items-baseline mb-2">
+              <Text className="text-2xl font-bold text-emerald-600 mr-2">
                 ETB {formatPrice(carData.price)}
               </Text>
-              {carData.isNegotiable && ! (carData.condition === 'New') && ( // Don't show negotiable if new and price is fixed
-                <Text style={styles.negotiableText}>Negotiable</Text>
+              {carData.isNegotiable && carData.condition !== 'New' && (
+                <Text className="text-lg font-bold text-amber-400">Negotiable</Text>
               )}
             </View>
-            <View style={styles.infoRow}>
-              <Ionicons name="location-outline" size={18} color={styles.amber.color} />
-              <Text style={styles.infoText}>{carData.location}</Text>
+            <View className="flex-row items-center mb-2">
+              <Ionicons name="location-outline" size={18} color="#F59E0B" />
+              <Text className="text-sm text-gray-700 ml-2">{carData.location}</Text>
             </View>
-            <View style={styles.infoRow}>
-              <Text style={styles.conditionLabel}>Condition:</Text>
-              <Text style={styles.conditionValue}>{carData.condition}</Text>
+            <View className="flex-row items-center mb-2">
+              <Text className="text-xs text-gray-400 mr-2">Condition:</Text>
+              <Text className="text-xs font-bold text-gray-700">{carData.condition}</Text>
             </View>
-            {SpecChips}
+            {CarSpecChips}
           </View>
 
           {/* Description */}
           {carData.description && (
-            <View style={styles.sectionCard}>
-                <Text style={styles.sectionTitle}>Description</Text>
-                <Text style={styles.descriptionText}>{carData.description}</Text>
+            <View className="bg-white/80 rounded-2xl mx-4 mb-4 p-4 shadow">
+              <Text className="text-base font-semibold text-gray-700 mb-1">Description</Text>
+              <Text className="text-base text-gray-900 leading-6">{carData.description}</Text>
             </View>
           )}
-
 
           {/* Seller Info */}
           {sellerData && (
-            <View style={[styles.sectionCard, styles.sellerCard]}>
+            <View className="bg-white/80 rounded-2xl mx-4 mb-4 p-4 flex-row items-center shadow">
               {sellerData.profilePicUrl ? (
-                <Image source={{ uri: sellerData.profilePicUrl }} style={styles.sellerAvatar} />
+                <Image source={{ uri: sellerData.profilePicUrl }} className="w-14 h-14 rounded-full border-2 border-blue-500 mr-4" />
               ) : (
-                <View style={[styles.sellerAvatar, styles.avatarPlaceholder]}>
-                    <Ionicons name="person-circle-outline" size={30} color="white" />
+                <View className="w-14 h-14 rounded-full bg-blue-500 justify-center items-center mr-4">
+                  <Ionicons name="person-circle-outline" size={30} color="white" />
                 </View>
               )}
-              <View style={styles.sellerInfoContainer}>
-                <Text style={styles.sellerName}>{sellerData.name}</Text>
-                { (sellerData.averageRating !== undefined && sellerData.reviewCount !== undefined) &&
-                    <View style={styles.ratingRow}>
-                        <Ionicons name="star" size={16} color={styles.amber.color} />
-                        <Text style={styles.ratingText}>{sellerData.averageRating?.toFixed(1)}</Text>
-                        <Text style={styles.reviewsText}>({sellerData.reviewCount} reviews)</Text>
-                    </View>
-                }
-                <View style={styles.infoRow}>
-                  <Ionicons name="call-outline" size={16} color={styles.blue.color} />
-                  <Text style={styles.sellerContactText}>{sellerData.phoneNumber}</Text>
+              <View className="flex-1">
+                <Text className="text-lg font-bold text-gray-900">{sellerData.name}</Text>
+                {(sellerData.averageRating !== undefined && sellerData.reviewCount !== undefined) && (
+                  <View className="flex-row items-center mb-1">
+                    <Ionicons name="star" size={16} color="#F59E0B" />
+                    <Text className="text-base font-bold text-amber-400 ml-1">{sellerData.averageRating?.toFixed(1)}</Text>
+                    <Text className="text-xs text-gray-400 ml-2">({sellerData.reviewCount} reviews)</Text>
+                  </View>
+                )}
+                <View className="flex-row items-center">
+                  <Ionicons name="call-outline" size={16} color="#3B82F6" />
+                  <Text className="text-sm text-gray-700 ml-2">{sellerData.phoneNumber}</Text>
                 </View>
               </View>
-               {/* Mini Message button inside seller card */}
-               {user && sellerData && user.uid !== sellerData.id && (
-                  <TouchableOpacity style={styles.miniMessageButton} onPress={handleChat} disabled={actionLoading === 'chat'}>
-                      {actionLoading === 'chat' ? <ActivityIndicator size="small" color={styles.blue.color} /> : <Ionicons name="chatbubbles-outline" size={20} color={styles.blue.color} />}
-                  </TouchableOpacity>
-                )}
+              {user && sellerData && user.uid !== sellerData.id && (
+                <TouchableOpacity className="p-2 ml-auto self-center" onPress={handleChat} disabled={actionLoading === 'chat'}>
+                  {actionLoading === 'chat'
+                    ? <ActivityIndicator size="small" color="#3B82F6" />
+                    : <Ionicons name="chatbubbles-outline" size={20} color="#3B82F6" />}
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
-          {/* Report Listing: Only show if logged in? Or allow anonymous reports? For now, always show. */}
-          <TouchableOpacity style={styles.reportButton} activeOpacity={0.85} onPress={() => Alert.alert("Report", "Report functionality to be implemented.")}>
+          {/* Report Listing */}
+          <TouchableOpacity className="flex-row mx-4 mb-6 py-3 rounded-2xl bg-white/60 items-center justify-center shadow" activeOpacity={0.85} onPress={() => Alert.alert("Report", "Report functionality to be implemented.")}>
             <Ionicons name="flag-outline" size={18} color="#4B5563" style={{marginRight: 8}} />
-            <Text style={styles.reportButtonText}>Report Listing</Text>
+            <Text className="text-base font-bold text-gray-700">Report Listing</Text>
           </TouchableOpacity>
-
-          {/* Similar Cars Section - Placeholder for now */}
-          {/* <View style={styles.similarCarsSection}>
-            <Text style={styles.similarCarsTitle}>Similar Cars</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.similarCarsScroll}>
-              {[...Array(3)].map((_, idx) => ( <CarCardSkeleton key={idx} cardWidth={width * 0.4} /> ))}
-            </ScrollView>
-          </View> */}
         </ScrollView>
 
-        {/* Bottom Action Bar: Only show if user is logged in and not the seller */}
+        {/* Bottom Action Bar */}
         {user && sellerData && user.uid !== sellerData.id && (
-            <View style={styles.bottomActionBar}>
-            <TouchableOpacity style={[styles.actionButton, styles.callButton]} activeOpacity={0.85} onPress={handleCall} disabled={actionLoading === 'call'}>
-                {actionLoading === 'call' ? <ActivityIndicator color="#fff" /> : <Ionicons name="call" size={20} color="#fff" />}
-                <Text style={styles.actionButtonText}>Call Seller</Text>
+          <View className="absolute left-0 right-0 bottom-0 pb-3 pt-2 bg-white/90 rounded-t-3xl shadow-lg flex-row justify-around items-center">
+            <TouchableOpacity className="flex-1 mx-2 py-3 rounded-2xl flex-row justify-center items-center bg-blue-500" activeOpacity={0.85} onPress={handleCall} disabled={actionLoading === 'call'}>
+              {actionLoading === 'call'
+                ? <ActivityIndicator color="#fff" />
+                : <Ionicons name="call" size={20} color="#fff" />}
+              <Text className="text-base font-bold text-white ml-2">Call Seller</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={[styles.actionButton, styles.chatButton]} activeOpacity={0.85} onPress={handleChat} disabled={actionLoading === 'chat'}>
-                {actionLoading === 'chat' ? <ActivityIndicator color={styles.darkGray} /> : <Ionicons name="chatbubble-ellipses-outline" size={20} color={styles.darkGray} />}
-                <Text style={[styles.actionButtonText, styles.chatButtonText]}>Chat</Text>
+            <TouchableOpacity className="flex-1 mx-2 py-3 rounded-2xl flex-row justify-center items-center bg-amber-400" activeOpacity={0.85} onPress={handleChat} disabled={actionLoading === 'chat'}>
+              {actionLoading === 'chat'
+                ? <ActivityIndicator color="#1F2937" />
+                : <Ionicons name="chatbubble-ellipses-outline" size={20} color="#1F2937" />}
+              <Text className="text-base font-bold ml-2 text-gray-900">Chat</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.saveButton} activeOpacity={0.85} onPress={handleSaveToggle} disabled={actionLoading === 'save'}>
-                {actionLoading === 'save' ? <ActivityIndicator color={styles.amber.color} /> : <Ionicons name={isSaved ? 'heart' : 'heart-outline'} size={22} color={isSaved ? styles.amber.color : styles.darkGray} style={{ transform: [{ scale: isSaved ? 1.1 : 1 }] }}/>}
+            <TouchableOpacity className="mx-2 py-3 px-4 rounded-2xl bg-white/80" activeOpacity={0.85} onPress={handleSaveToggle} disabled={actionLoading === 'save'}>
+              {actionLoading === 'save'
+                ? <ActivityIndicator color="#F59E0B" />
+                : <Ionicons name={isSaved ? 'heart' : 'heart-outline'} size={22} color={isSaved ? "#F59E0B" : "#1F2937"} style={{ transform: [{ scale: isSaved ? 1.1 : 1 }] }}/>}
             </TouchableOpacity>
-            </View>
+          </View>
         )}
       </SafeAreaView>
-    </LinearGradient>
+    </View>
   );
 };
-
-// Re-define colors here or import from a constants file
-const screenStyles = {
-  darkGray: '#1F2937',
-  mediumGray: '#4B5563',
-  amber: '#F59E0B',
-  blue: '#3B82F6',
-  lightGray: '#F3F4F6',
-  textDark: '#111827',
-  textMedium: '#374151',
-  textLight: '#6B7280',
-  white: '#FFFFFF',
-  emerald: '#059669',
-};
-
-const styles = StyleSheet.create({
-  darkGray: screenStyles.darkGray, // For direct use if needed
-  mediumGray: screenStyles.mediumGray,
-  amber: screenStyles.amber,
-  blue: screenStyles.blue,
-
-  gradient: { flex: 1 },
-  safeArea: { flex: 1 },
-  loadingContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 20,
-  },
-  loadingText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: screenStyles.lightGray,
-  },
-  errorText: {
-    marginTop: 15,
-    fontSize: 16,
-    color: screenStyles.amber,
-    textAlign: 'center',
-    marginBottom: 20,
-  },
-  backButton: {
-    backgroundColor: screenStyles.amber,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-  },
-  backButtonText: {
-    color: screenStyles.darkGray,
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
-  // Header is now managed by Stack.Screen options for title, back button color, etc.
-  // For custom header elements like share:
-  // navigation.setOptions({ headerRight: () => <TouchableOpacity onPress={handleShare}><Ionicons name="share-social-outline" size={24} color={styles.amber} /></TouchableOpacity> });
-
-  scrollContentContainer: { paddingBottom: 100 },
-  carouselContainer: { marginBottom: 12 }, // mb-3
-  carouselImage: { width: width, height: 220, resizeMode: 'cover' },
-  imagePlaceholder: { backgroundColor: '#e5e7eb', justifyContent: 'center', alignItems: 'center'},
-  carouselIndicatorContainer: { position: 'absolute', bottom: 12, left: 0, right: 0, flexDirection: 'row', justifyContent: 'center' },
-  carouselIndicator: { width: 8, height: 8, borderRadius: 4, marginHorizontal: 3 },
-  badgeContainer: { position: 'absolute', top: 12, left: 12, flexDirection: 'row', gap: 8 },
-  badge: { paddingHorizontal: 12, paddingVertical: 4, borderRadius: 999 }, // px-3 py-1 rounded-full
-  badgeText: { fontSize: 12, fontWeight: 'bold', color: screenStyles.white, textTransform: 'uppercase' },
-  soldBadge: { backgroundColor: 'rgba(107, 114, 128, 0.8)' }, // gray-500 with opacity
-
-  detailsCard: { backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 16, marginHorizontal: 16, marginBottom: 16, padding: 16, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-  carName: { fontSize: 22, fontWeight: 'bold', color: screenStyles.textDark, marginBottom: 4 },
-  priceRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 8 },
-  priceText: { fontSize: 24, fontWeight: 'bold', color: screenStyles.emerald, marginRight: 8 },
-  negotiableText: { fontSize: 16, fontWeight: 'bold', color: screenStyles.amber },
-  infoRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  infoText: { fontSize: 14, color: screenStyles.textMedium, marginLeft: 6 },
-  conditionLabel: { fontSize: 13, color: screenStyles.textLight, marginRight: 4 },
-  conditionValue: { fontSize: 13, fontWeight: 'bold', color: screenStyles.textMedium },
-
-  specChipContainer: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 8 },
-  specChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: 'rgba(59,130,246,0.08)', borderRadius: 14, paddingHorizontal: 10, paddingVertical: 6, marginRight: 8, marginBottom: 8 },
-  specIcon: { color: screenStyles.blue }, // Applied directly to icon component
-  specText: { marginLeft: 6, color: screenStyles.textDark, fontWeight: '600', fontSize: 13 },
-
-  sectionCard: { backgroundColor: 'rgba(255,255,255,0.8)', borderRadius: 16, marginHorizontal: 16, marginBottom: 16, padding: 16, shadowColor: '#000', shadowOpacity: 0.1, shadowRadius: 5, elevation: 3 },
-  sectionTitle: { fontSize: 16, fontWeight: '600', color: screenStyles.textMedium, marginBottom: 6 },
-  descriptionText: { fontSize: 15, color: screenStyles.textDark, lineHeight: 22 },
-
-  sellerCard: { flexDirection: 'row', alignItems: 'center' },
-  sellerAvatar: { width: 56, height: 56, borderRadius: 28, borderWidth: 2, borderColor: screenStyles.blue, marginRight: 14 },
-  avatarPlaceholder: { backgroundColor: screenStyles.blue, justifyContent: 'center', alignItems: 'center' },
-  sellerInfoContainer: { flex: 1 },
-  sellerName: { fontSize: 18, fontWeight: 'bold', color: screenStyles.textDark },
-  ratingRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 2 },
-  ratingText: { fontSize: 15, fontWeight: 'bold', color: screenStyles.amber, marginLeft: 4 },
-  reviewsText: { fontSize: 12, color: screenStyles.textLight, marginLeft: 6 },
-  sellerContactText: { fontSize: 14, color: screenStyles.textMedium, marginLeft: 6 },
-  miniMessageButton: { padding:8, marginLeft: 'auto', alignSelf: 'center' },
-
-
-  reportButton: { flexDirection: 'row', marginHorizontal: 16, marginBottom: 24, paddingVertical: 12, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.6)', alignItems: 'center', justifyContent: 'center', shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 3, elevation: 2 },
-  reportButtonText: { fontSize: 16, fontWeight: 'bold', color: screenStyles.textMedium },
-
-  // Similar Cars (Placeholder Styling)
-  // similarCarsSection: { marginTop: 8, marginBottom: 32 },
-  // similarCarsTitle: { fontSize: 18, fontWeight: 'bold', color: screenStyles.white, marginBottom: 8, paddingHorizontal: 16 },
-  // similarCarsScroll: { paddingLeft: 16, paddingRight: 8 },
-
-  bottomActionBar: { position: 'absolute', left: 0, right: 0, bottom: 0, paddingBottom: 12, paddingTop: 8, backgroundColor: 'rgba(255,255,255,0.9)', borderTopLeftRadius: 24, borderTopRightRadius: 24, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 8, elevation: 8, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center' },
-  actionButton: { flex: 1, marginHorizontal: 8, paddingVertical: 12, borderRadius: 16, flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }, // mx-2 py-3
-  callButton: { backgroundColor: screenStyles.blue },
-  chatButton: { backgroundColor: screenStyles.amber },
-  actionButtonText: { fontSize: 16, fontWeight: 'bold', color: screenStyles.white, marginLeft: 8 },
-  chatButtonText: { color: screenStyles.darkGray },
-  saveButton: { marginHorizontal: 8, paddingVertical: 12, paddingHorizontal: 16, borderRadius: 16, backgroundColor: 'rgba(255,255,255,0.8)' }, // flex-0 mx-2 py-3 px-4
-});
 
 export default CarDetailScreen;

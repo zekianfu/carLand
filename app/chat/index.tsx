@@ -4,10 +4,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { Stack, useRouter } from 'expo-router';
 import { LinearGradient } from 'expo-linear-gradient';
 
-import ChatListItem from '../../../components/chat/ChatListItem'; // Adjusted path
-import { ChatRoom, UserProfile } from '../../../types'; // Adjusted path
-import { subscribeToUserChatRooms } from '../../../services/firebaseService'; // Adjusted path
-import { useAuth } from '../../../context/AuthContext'; // Import useAuth
+import ChatListItem from '@/components/chat/ChatListItem'; // Adjusted path
+import { ChatRoom, UserProfile } from '@/types'; // Adjusted path
+import { subscribeToUserChatRooms } from '@/services/firebaseService'; // Adjusted path
+import { useAuth } from '@/context/AuthContext'; // Import useAuth
 
 // Mock current user - Will be removed
 
