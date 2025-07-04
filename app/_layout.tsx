@@ -4,34 +4,20 @@ import React, { useEffect } from 'react';
 import { ActivityIndicator, StyleSheet, View, Text } from 'react-native'; // For basic loading
 import { AuthProvider, useAuth } from '@/context/AuthContext'; // Changed to alias
 import { LinearGradient } from 'expo-linear-gradient'; // Added for consistent background
-import { GoogleSignin } from '@react-native-google-signin/google-signin'; // Added import
+// import { GoogleSignin } from '@react-native-google-signin/google-signin'; // Removed import
 
 import './global.css'; // Assuming this is for NativeWind or similar
 
-// Configure Google Sign-In
-// IMPORTANT: REPLACE 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com' with your actual Web Client ID
-const WEB_CLIENT_ID = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com'; // << USER ACTION REQUIRED
-
-function initializeGoogleSignIn() {
-  if (!WEB_CLIENT_ID || WEB_CLIENT_ID === 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com') {
-    console.warn("Google Sign-In webClientId is not configured. Please replace the placeholder in app/_layout.tsx. Google Sign-In will not work correctly.");
-    return;
-  }
-  GoogleSignin.configure({
-    webClientId: WEB_CLIENT_ID,
-  });
-  console.log("Google Sign-In Configured from RootLayout");
-}
-
+// Configuration for @react-native-google-signin/google-signin removed.
+// const WEB_CLIENT_ID = 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com';
+// function initializeGoogleSignIn() { ... }
 
 const AppNavigator: React.FC = () => {
   const { user, isLoading } = useAuth();
   const router = useRouter();
   const segments = useSegments(); // Gets the current route segments
 
-  useEffect(() => {
-    initializeGoogleSignIn(); // Ensure Google Sign-In is configured on app start
-  }, []);
+  // useEffect for initializeGoogleSignIn removed.
 
   useEffect(() => {
     if (isLoading) {
