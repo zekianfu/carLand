@@ -65,9 +65,10 @@ const LoginScreen: React.FC = () => {
   return (
     <LinearGradient colors={['#1F2937', '#374151']} className="flex-1">
       <SafeAreaView className="flex-1">
-        <View className="flex-1 justify-center items-center px-6"> {/* container */}
-          {/* <Image source={require('../../../assets/images/logo.png')} style={styles.logo} /> */}
-          <Text className="text-3xl font-bold text-white mb-2 text-center">Welcome Back!</Text> {/* title */}
+        <View className="flex-1 justify-center items-center"> {/* Outer container for centering */}
+          <View className="w-full max-w-md px-6"> {/* Inner container with max-width and padding */}
+            {/* <Image source={require('../../../assets/images/logo.png')} style={styles.logo} /> */}
+            <Text className="text-3xl font-bold text-white mb-2 text-center">Welcome Back!</Text> {/* title */}
           <Text className="text-base text-gray-300 mb-8 text-center">Log in to continue to FaithLink Cars.</Text> {/* subtitle */}
 
           {authError && ( // Displaying auth error from context
