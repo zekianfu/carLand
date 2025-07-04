@@ -2,96 +2,103 @@ import { ChatMessage, ChatRoom, UserProfile } from '../types'; // Adjust path as
 import { Timestamp } from '../utils/timestamp'; // Mock Timestamp
 import { mockUserProfiles, getMockUserProfile } from './users';
 
+const user1Email = 'user1@example.com';
+const user2Email = 'user2@example.com';
+const user3Email = 'user3@example.com';
+
 export const mockChatRooms: ChatRoom[] = [
   {
-    id: 'user1_user2', // Alice and Bob
-    participantIds: ['user1', 'user2'].sort(),
+    id: generateMockOneOnOneRoomId(user1Email, user2Email), // Alice and Bob
+    participantIds: [user1Email, user2Email].sort(),
     participantsSummary: [
-      { userId: 'user1', name: 'Alice Wonderland', profilePicUrl: mockUserProfiles['user1'].profilePicUrl },
-      { userId: 'user2', name: 'Bob The Builder', profilePicUrl: mockUserProfiles['user2'].profilePicUrl },
+      { userId: user1Email, name: 'Alice Wonderland', profilePicUrl: mockUserProfiles[user1Email]?.profilePicUrl },
+      { userId: user2Email, name: 'Bob The Builder', profilePicUrl: mockUserProfiles[user2Email]?.profilePicUrl },
     ].sort((a,b) => a.userId.localeCompare(b.userId)),
     createdAt: Timestamp.fromDate(new Date('2023-10-20T10:00:00Z')),
     updatedAt: Timestamp.fromDate(new Date('2023-10-28T10:05:00Z')),
     lastMessage: {
       text: 'Hey Bob, are you interested in the Civic?',
-      senderId: 'user1',
+      senderId: user1Email,
       senderName: 'Alice Wonderland',
       timestamp: Timestamp.fromDate(new Date('2023-10-28T10:05:00Z')),
       type: 'user',
     },
-    unreadMessages: { user1: 0, user2: 1 },
+    unreadMessages: { [user1Email]: 0, [user2Email]: 1 },
     relatedCarId: 'car1', // Civic
     relatedCarName: 'Honda Civic 2020',
     relatedCarImage: 'https://example.com/civic.jpg',
   },
   {
-    id: 'user1_user3', // Alice and Charlie
-    participantIds: ['user1', 'user3'].sort(),
+    id: generateMockOneOnOneRoomId(user1Email, user3Email), // Alice and Charlie
+    participantIds: [user1Email, user3Email].sort(),
     participantsSummary: [
-      { userId: 'user1', name: 'Alice Wonderland', profilePicUrl: mockUserProfiles['user1'].profilePicUrl },
-      { userId: 'user3', name: 'Charlie Brown', profilePicUrl: mockUserProfiles['user3'].profilePicUrl },
+      { userId: user1Email, name: 'Alice Wonderland', profilePicUrl: mockUserProfiles[user1Email]?.profilePicUrl },
+      { userId: user3Email, name: 'Charlie Brown', profilePicUrl: mockUserProfiles[user3Email]?.profilePicUrl },
     ].sort((a,b) => a.userId.localeCompare(b.userId)),
     createdAt: Timestamp.fromDate(new Date('2023-10-22T15:00:00Z')),
     updatedAt: Timestamp.fromDate(new Date('2023-10-27T18:30:00Z')),
     lastMessage: {
       text: 'Thanks for the info on the Explorer!',
-      senderId: 'user1',
+      senderId: user1Email,
       senderName: 'Alice Wonderland',
       timestamp: Timestamp.fromDate(new Date('2023-10-27T18:30:00Z')),
       type: 'user',
     },
-    unreadMessages: { user1: 0, user3: 0 },
+    unreadMessages: { [user1Email]: 0, [user3Email]: 0 },
     // No specific car, general chat
   },
 ];
 
+const roomUser1User2 = generateMockOneOnOneRoomId(user1Email, user2Email);
+const roomUser1User3 = generateMockOneOnOneRoomId(user1Email, user3Email);
+
 export const mockMessages: Record<string, ChatMessage[]> = {
-  'user1_user2': [ // Messages for Alice and Bob's room
+  [roomUser1User2]: [ // Messages for Alice and Bob's room
     {
       id: 'msg1_u1u2',
-      roomId: 'user1_user2',
-      senderId: 'user1',
+      roomId: roomUser1User2,
+      senderId: user1Email,
       senderName: 'Alice Wonderland',
-      senderProfilePicUrl: mockUserProfiles['user1'].profilePicUrl,
+      senderProfilePicUrl: mockUserProfiles[user1Email]?.profilePicUrl,
       text: 'Hey Bob, are you interested in the Civic?',
       timestamp: Timestamp.fromDate(new Date('2023-10-28T10:05:00Z')),
       type: 'user',
-      isReadBy: ['user1'],
+      isReadBy: [user1Email],
     },
     {
       id: 'msg2_u1u2',
-      roomId: 'user1_user2',
-      senderId: 'user2',
+      roomId: roomUser1User2,
+      senderId: user2Email,
       senderName: 'Bob The Builder',
-      senderProfilePicUrl: mockUserProfiles['user2'].profilePicUrl,
+      senderProfilePicUrl: mockUserProfiles[user2Email]?.profilePicUrl,
       text: 'Hi Alice, yes, I saw the listing. Can you tell me more about its condition?',
       timestamp: Timestamp.fromDate(new Date('2023-10-28T10:00:00Z')), // Older than msg1
       type: 'user',
-      isReadBy: ['user1', 'user2'],
+      isReadBy: [user1Email, user2Email],
     },
   ],
-  'user1_user3': [ // Messages for Alice and Charlie's room
+  [roomUser1User3]: [ // Messages for Alice and Charlie's room
     {
       id: 'msg1_u1u3',
-      roomId: 'user1_user3',
-      senderId: 'user3',
+      roomId: roomUser1User3,
+      senderId: user3Email,
       senderName: 'Charlie Brown',
-      senderProfilePicUrl: mockUserProfiles['user3'].profilePicUrl,
+      senderProfilePicUrl: mockUserProfiles[user3Email]?.profilePicUrl,
       text: 'Hey Alice, I saw you sold the Explorer, congrats!',
       timestamp: Timestamp.fromDate(new Date('2023-10-27T18:25:00Z')),
       type: 'user',
-      isReadBy: ['user1', 'user3'],
+      isReadBy: [user1Email, user3Email],
     },
     {
       id: 'msg2_u1u3',
-      roomId: 'user1_user3',
-      senderId: 'user1',
+      roomId: roomUser1User3,
+      senderId: user1Email,
       senderName: 'Alice Wonderland',
-      senderProfilePicUrl: mockUserProfiles['user1'].profilePicUrl,
+      senderProfilePicUrl: mockUserProfiles[user1Email]?.profilePicUrl,
       text: 'Thanks for the info on the Explorer!', // This matches lastMessage in room
       timestamp: Timestamp.fromDate(new Date('2023-10-27T18:30:00Z')),
       type: 'user',
-      isReadBy: ['user1', 'user3'],
+      isReadBy: [user1Email, user3Email],
     },
   ],
 };
