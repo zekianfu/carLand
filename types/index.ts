@@ -25,6 +25,32 @@ export interface UserProfile {
   lastSeen?: Timestamp;
 }
 
+// Represents a subset of the Firebase Auth User object
+// Used for mocking and potentially for type consistency within the app
+// if not directly using the SDK's User type everywhere.
+export interface FirebaseUser {
+  uid: string;
+  email: string | null;
+  displayName: string | null;
+  photoURL: string | null;
+  emailVerified: boolean;
+  isAnonymous: boolean;
+  metadata: {
+    creationTime?: string;
+    lastSignInTime?: string;
+  };
+  providerId: string;
+  // Mock-specific or app-specific extension:
+  password?: string; // Used in mock data, not a real Firebase Auth User property client-side
+  // Add any other fields your app directly uses from the Firebase auth user object
+  // For example, if you use functions like `getIdToken()`:
+  // getIdToken?: (forceRefresh?: boolean) => Promise<string>;
+  // reload?: () => Promise<void>;
+  // delete?: () => Promise<void>;
+  // etc.
+  // For this mock, we'll keep it to properties.
+}
+
 
 // --- Car Listing ---
 // Represents the structure of a Car document in Firestore

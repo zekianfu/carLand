@@ -3,21 +3,67 @@
 // If you need those, expand this mock.
 
 export class Timestamp {
-  private date: Date;
-  constructor(date: Date) {
-    this.date = date;
+  public readonly seconds: number;
+  public readonly nanoseconds: number; // Firestore Timestamps have nanosecond precision
+
+  constructor(seconds: number, nanoseconds: number) {
+    // Basic validation, though a real implementation is more robust
+    if (nanoseconds < 0 || nanoseconds >= 1e9) {
+      throw new Error("Timestamp nanoseconds out of range: " + nanoseconds);
+    }
+    this.seconds = seconds;
+    this.nanoseconds = nanoseconds;
   }
-  static now() {
-    return new Timestamp(new Date());
+
+  static now(): Timestamp {
+    const now = Date.now();
+    const seconds = Math.floor(now / 1000);
+    const nanoseconds = (now % 1000) * 1e6;
+    return new Timestamp(seconds, nanoseconds);
   }
-  static fromDate(date: Date) {
-    return new Timestamp(date);
+
+  static fromDate(date: Date): Timestamp {
+    const millis = date.getTime();
+    const seconds = Math.floor(millis / 1000);
+    const nanoseconds = (millis % 1000) * 1e6;
+    return new Timestamp(seconds, nanoseconds);
   }
-  toDate() {
-    return this.date;
+
+  static fromMillis(milliseconds: number): Timestamp {
+    const seconds = Math.floor(milliseconds / 1000);
+    const nanoseconds = (milliseconds % 1000) * 1e6;
+    return new Timestamp(seconds, nanoseconds);
   }
-  getTime() {
-    return this.date.getTime();
+
+  toDate(): Date {
+    return new Date(this.seconds * 1000 + this.nanoseconds / 1e6);
+  }
+
+  toMillis(): number {
+    return this.seconds * 1000 + this.nanoseconds / 1e6;
+  }
+
+  // For compatibility with getTime() if used elsewhere, maps to toMillis()
+  getTime(): number {
+    return this.toMillis();
+  }
+
+  isEqual(other: Timestamp): boolean {
+    return (
+      other instanceof Timestamp &&
+      this.seconds === other.seconds &&
+      this.nanoseconds === other.nanoseconds
+    );
+  }
+
+  toString(): string {
+    return `Timestamp(seconds=${this.seconds}, nanoseconds=${this.nanoseconds})`;
+  }
+
+  valueOf(): string {
+    // This behavior is particular to how Firestore Timestamps might be used in comparisons.
+    // A common valueOf for Date-like objects is milliseconds.
+    return this.toMillis().toString();
   }
 }
 
