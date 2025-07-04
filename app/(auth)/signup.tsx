@@ -13,7 +13,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../context/AuthContext'; // Path assuming context is two levels up
+import { useAuth } from '@/context/AuthContext'; // Corrected import path
 
 const SignupScreen: React.FC = () => {
   const router = useRouter();
@@ -62,27 +62,33 @@ const SignupScreen: React.FC = () => {
 
 
   return (
-    <LinearGradient colors={['#1F2937', '#374151']} style={styles.gradient}>
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView contentContainerStyle={styles.scrollContainer}>
-          <View style={styles.container}>
-            {/* <Image source={require('../../../assets/images/logo.png')} style={styles.logo} /> */}
-            <Text style={styles.title}>Create Account</Text>
-            <Text style={styles.subtitle}>Join FaithLink Cars today!</Text>
+    <LinearGradient colors={['#1F2937', '#374151']} className="flex-1">
+      <SafeAreaView className="flex-1">
+        <ScrollView contentContainerClassName="grow justify-center">
+          <View className="justify-center items-center px-6 py-5"> {/* container */}
+            {/* <Image source={require('../../../assets/images/logo.png')} className="w-20 h-20 mb-4" /> */}
+            <Text className="text-3xl font-bold text-white mb-2 text-center">Create Account</Text> {/* title */}
+            <Text className="text-base text-gray-300 mb-8 text-center">Join FaithLink Cars today!</Text> {/* subtitle */}
+
+            {authError && ( // Displaying auth error from context
+              <View className="mb-4 p-3 bg-red-500/30 rounded-md w-full items-center">
+                <Text className="text-red-300 text-sm text-center">{authError.message}</Text>
+              </View>
+            )}
 
             <TextInput
-              style={styles.input}
+              className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-4 border border-white/20 focus:border-amber-400" // input
               placeholder="Full Name or Display Name"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9CA3AF" // gray-400
               value={displayName}
               onChangeText={setDisplayName}
               autoCapitalize="words"
               textContentType="name"
             />
             <TextInput
-              style={styles.input}
+              className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-4 border border-white/20 focus:border-amber-400" // input
               placeholder="Email Address"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9CA3AF" // gray-400
               value={email}
               onChangeText={setEmail}
               keyboardType="email-address"
@@ -90,18 +96,18 @@ const SignupScreen: React.FC = () => {
               textContentType="emailAddress"
             />
             <TextInput
-              style={styles.input}
+              className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-4 border border-white/20 focus:border-amber-400" // input
               placeholder="Password (min. 6 characters)"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9CA3AF" // gray-400
               value={password}
               onChangeText={setPassword}
               secureTextEntry
-              textContentType="newPassword" // Helps with password managers
+              textContentType="newPassword"
             />
             <TextInput
-              style={styles.input}
+              className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-5 border border-white/20 focus:border-amber-400" // input
               placeholder="Confirm Password"
-              placeholderTextColor="#9CA3AF"
+              placeholderTextColor="#9CA3AF" // gray-400
               value={confirmPassword}
               onChangeText={setConfirmPassword}
               secureTextEntry
@@ -109,34 +115,33 @@ const SignupScreen: React.FC = () => {
             />
 
             <TouchableOpacity
-              style={[styles.button, styles.signupButton]}
+              className="w-full h-12 rounded-lg justify-center items-center flex-row mb-4 bg-emerald-500 active:bg-emerald-600" // button, signupButton (emerald)
               onPress={handleSignup}
               disabled={isAuthenticating}
             >
               {isAuthenticating ? (
                 <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text style={styles.buttonText}>Create Account</Text>
+                <Text className="text-white text-base font-semibold">Create Account</Text> // buttonText
               )}
             </TouchableOpacity>
 
-            <Text style={styles.orText}>OR</Text>
+            <Text className="text-gray-400 text-sm my-4">OR</Text> {/* orText */}
 
             <TouchableOpacity
-                style={[styles.button, styles.googleButton]}
-                onPress={handleGoogleSignUp}
-                disabled={isAuthenticating} // Also disable while any auth operation is in progress
+              className="w-full h-12 rounded-lg justify-center items-center flex-row mb-4 bg-red-600 active:bg-red-700" // button, googleButton
+              onPress={handleGoogleSignUp}
+              disabled={isAuthenticating}
             >
-                {/* Add ActivityIndicator for Google Sign Up if isAuthenticating and this specific button was pressed */}
-                <Ionicons name="logo-google" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-                <Text style={styles.buttonText}>Sign Up with Google</Text>
+              <Ionicons name="logo-google" size={20} color="#FFFFFF" className="mr-2.5" /> {/* buttonIcon */}
+              <Text className="text-white text-base font-semibold">Sign Up with Google</Text> {/* buttonText */}
             </TouchableOpacity>
 
-            <View style={styles.footer}>
-              <Text style={styles.footerText}>Already have an account? </Text>
+            <View className="flex-row mt-5 items-center"> {/* footer */}
+              <Text className="text-gray-300 text-sm">Already have an account? </Text> {/* footerText */}
               <Link href="/(auth)/login" asChild>
                 <TouchableOpacity>
-                  <Text style={styles.linkText}>Log In</Text>
+                  <Text className="text-amber-400 text-sm font-semibold">Log In</Text> {/* linkText (amber) */}
                 </TouchableOpacity>
               </Link>
             </View>
@@ -147,92 +152,6 @@ const SignupScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  gradient: { flex: 1 },
-  safeArea: { flex: 1 },
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  container: {
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-    paddingVertical: 20, // Added padding for scroll view content
-  },
-  logo: {
-    width: 80, // Smaller logo for signup
-    height: 80,
-    resizeMode: 'contain',
-    marginBottom: 15,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#D1D5DB',
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  signupButton: {
-    backgroundColor: '#10B981', // emerald-500
-  },
-  googleButton: {
-    backgroundColor: '#EA4335', // Google Red
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonIcon: {
-    marginRight: 10,
-  },
-  orText: {
-    color: '#9CA3AF',
-    fontSize: 14,
-    marginVertical: 15,
-  },
-  footer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#D1D5DB',
-    fontSize: 14,
-  },
-  linkText: {
-    color: '#60A5FA',
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
+// StyleSheet.create block removed as all styles are converted to NativeWind classes.
 
 export default SignupScreen;

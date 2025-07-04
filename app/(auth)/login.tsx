@@ -12,7 +12,7 @@ import {
   View
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useAuth } from '../../context/AuthContext'; // Path assuming context is two levels up
+import { useAuth } from '@/context/AuthContext'; // Corrected import path
 
 const LoginScreen: React.FC = () => {
   const router = useRouter();
@@ -63,17 +63,23 @@ const LoginScreen: React.FC = () => {
   };
 
   return (
-    <LinearGradient colors={['#1F2937', '#374151']} style={styles.gradient}>
-      <SafeAreaView style={styles.safeArea}>
-        <View style={styles.container}>
+    <LinearGradient colors={['#1F2937', '#374151']} className="flex-1">
+      <SafeAreaView className="flex-1">
+        <View className="flex-1 justify-center items-center px-6"> {/* container */}
           {/* <Image source={require('../../../assets/images/logo.png')} style={styles.logo} /> */}
-          <Text style={styles.title}>Welcome Back!</Text>
-          <Text style={styles.subtitle}>Log in to continue to FaithLink Cars.</Text>
+          <Text className="text-3xl font-bold text-white mb-2 text-center">Welcome Back!</Text> {/* title */}
+          <Text className="text-base text-gray-300 mb-8 text-center">Log in to continue to FaithLink Cars.</Text> {/* subtitle */}
+
+          {authError && ( // Displaying auth error from context
+            <View className="mb-4 p-3 bg-red-500/30 rounded-md w-full items-center">
+              <Text className="text-red-300 text-sm text-center">{authError.message}</Text>
+            </View>
+          )}
 
           <TextInput
-            style={styles.input}
+            className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-4 border border-white/20 focus:border-amber-400" // input
             placeholder="Email Address"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#9CA3AF" // gray-400
             value={email}
             onChangeText={setEmail}
             keyboardType="email-address"
@@ -81,9 +87,9 @@ const LoginScreen: React.FC = () => {
             textContentType="emailAddress"
           />
           <TextInput
-            style={styles.input}
+            className="w-full h-12 bg-white/10 rounded-lg px-4 text-base text-white mb-5 border border-white/20 focus:border-amber-400" // input
             placeholder="Password"
-            placeholderTextColor="#9CA3AF"
+            placeholderTextColor="#9CA3AF" // gray-400
             value={password}
             onChangeText={setPassword}
             secureTextEntry
@@ -91,34 +97,34 @@ const LoginScreen: React.FC = () => {
           />
 
           <TouchableOpacity
-            style={[styles.button, styles.loginButton]}
+            className="w-full h-12 rounded-lg justify-center items-center flex-row mb-4 bg-amber-500 active:bg-amber-600" // button, loginButton (amber)
             onPress={handleLogin}
             disabled={isAuthenticating}
           >
             {isAuthenticating ? (
               <ActivityIndicator color="#FFFFFF" />
             ) : (
-              <Text style={styles.buttonText}>Log In</Text>
+              <Text className="text-white text-base font-semibold">Log In</Text> // buttonText
             )}
           </TouchableOpacity>
 
-          <Text style={styles.orText}>OR</Text>
+          <Text className="text-gray-400 text-sm my-4">OR</Text> {/* orText */}
 
           <TouchableOpacity
-            style={[styles.button, styles.googleButton]}
+            className="w-full h-12 rounded-lg justify-center items-center flex-row mb-4 bg-red-600 active:bg-red-700" // button, googleButton (Google Red)
             onPress={handleGoogleSignIn}
-            disabled={isAuthenticating} // Also disable while any auth operation is in progress
+            disabled={isAuthenticating}
           >
-            {/* Add ActivityIndicator for Google Sign In if isAuthenticating and this specific button was pressed */}
-            <Ionicons name="logo-google" size={20} color="#FFFFFF" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Sign In with Google</Text>
+            {/* Consider a specific loading state for Google if isAuthenticating and google sign in initiated */}
+            <Ionicons name="logo-google" size={20} color="#FFFFFF" className="mr-2.5" /> {/* buttonIcon */}
+            <Text className="text-white text-base font-semibold">Sign In with Google</Text> {/* buttonText */}
           </TouchableOpacity>
 
-          <View style={styles.footer}>
-            <Text style={styles.footerText}>Don't have an account? </Text>
+          <View className="flex-row mt-5 items-center"> {/* footer */}
+            <Text className="text-gray-300 text-sm">Don't have an account? </Text> {/* footerText */}
             <Link href="/(auth)/signup" asChild>
               <TouchableOpacity>
-                <Text style={styles.linkText}>Sign Up</Text>
+                <Text className="text-amber-400 text-sm font-semibold">Sign Up</Text> {/* linkText (amber) */}
               </TouchableOpacity>
             </Link>
           </View>
@@ -128,88 +134,6 @@ const LoginScreen: React.FC = () => {
   );
 };
 
-const styles = StyleSheet.create({
-  gradient: { flex: 1 },
-  safeArea: { flex: 1 },
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: 24,
-  },
-  logo: {
-    width: 100,
-    height: 100,
-    resizeMode: 'contain',
-    marginBottom: 20,
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#FFFFFF',
-    marginBottom: 8,
-    textAlign: 'center',
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#D1D5DB', // gray-300
-    marginBottom: 30,
-    textAlign: 'center',
-  },
-  input: {
-    width: '100%',
-    height: 50,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    fontSize: 16,
-    color: '#FFFFFF',
-    marginBottom: 15,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  button: {
-    width: '100%',
-    height: 50,
-    borderRadius: 8,
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: 'row',
-    marginBottom: 15,
-  },
-  loginButton: {
-    backgroundColor: '#3B82F6', // blue-500
-  },
-  googleButton: {
-    backgroundColor: '#EA4335', // Google Red
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  buttonIcon: {
-    marginRight: 10,
-  },
-  orText: {
-    color: '#9CA3AF', // gray-400
-    fontSize: 14,
-    marginVertical: 15,
-  },
-  footer: {
-    flexDirection: 'row',
-    marginTop: 20,
-    alignItems: 'center',
-  },
-  footerText: {
-    color: '#D1D5DB', // gray-300
-    fontSize: 14,
-  },
-  linkText: {
-    color: '#60A5FA', // blue-400
-    fontSize: 14,
-    fontWeight: '600',
-  },
-});
+// StyleSheet.create block removed as all styles are converted to NativeWind classes.
 
 export default LoginScreen;
