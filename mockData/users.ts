@@ -87,8 +87,44 @@ let newMockUsers: Record<string, FirebaseUser> = {};
 let newMockUserProfiles: Record<string, UserProfile> = {};
 
 export const addMockUser = (user: FirebaseUser, profile: UserProfile) => {
-  newMockUsers[user.uid] = { ...user } as FirebaseUser; // Cast to FirebaseUser
-  newMockUserProfiles[profile.id] = { ...profile };
+  // Ensure email is used as the primary key and for uid/id fields.
+  // For this mock system, we assume user.email is always provided for new users.
+  if (!user.email) {
+    console.error("addMockUser Error: user.email is missing. Cannot add user.");
+    return;
+  }
+  const emailKey = user.email;
+
+  // Check for duplicates in initial mock users and newly added mock users
+  if (mockUsers[emailKey] || newMockUsers[emailKey]) {
+    console.error(`addMockUser Error: User with email ${emailKey} already exists.`);
+    return; // Or throw new Error(`User with email ${emailKey} already exists.`);
+  }
+
+  // Define default profile values
+  const defaultProfileValues: Partial<UserProfile> = {
+    profilePicUrl: 'https://via.placeholder.com/150/000000/FFFFFF/?text=User', // Default avatar
+    isSeller: false,
+    bio: 'New user of the platform.',
+    location: 'Not specified',
+    joinedAt: Timestamp.now(), // Set join date to now if not provided
+  };
+
+  // Merge provided profile with defaults. Provided values will override defaults.
+  const completeProfile: UserProfile = {
+    ...defaultProfileValues,
+    ...profile, // User-provided profile data
+    id: emailKey, // Ensure ID is set to emailKey
+    email: emailKey, // Ensure email is set
+    // Ensure `name` and `phoneNumber` are present, or handle if they can be optional
+    // For now, assuming `profile` input to `addMockUser` will include `name` and `phoneNumber`
+    // as they are not optional in UserProfile type.
+    // `joinedAt` will be overridden by profile.joinedAt if it exists, otherwise default is used.
+  };
+
+  newMockUsers[emailKey] = { ...user, uid: emailKey, email: emailKey } as FirebaseUser;
+  newMockUserProfiles[emailKey] = completeProfile;
+  console.log(`Mock user ${emailKey} added successfully with profile:`, completeProfile);
 };
 
 export const findMockUserByEmail = (email: string): FirebaseUser | null => {
@@ -99,11 +135,9 @@ export const findMockUserByEmail = (email: string): FirebaseUser | null => {
 };
 
 export const findMockUserProfileByEmail = (email: string): UserProfile | null => {
-  const userId = findMockUserByEmail(email)?.uid;
-  if (userId) {
-    return getMockUserProfile(userId) || (newMockUserProfiles[userId] ? { ...newMockUserProfiles[userId] } : null);
-  }
-  return null;
+  // Directly use email to lookup in mockUserProfiles and newMockUserProfiles
+  const profile = mockUserProfiles[email] || newMockUserProfiles[email];
+  return profile ? { ...profile } : null;
 };
 
 export const resetNewMockUsers = () => {
