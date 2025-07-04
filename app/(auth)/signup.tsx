@@ -64,8 +64,8 @@ const SignupScreen: React.FC = () => {
   return (
     <LinearGradient colors={['#1F2937', '#374151']} className="flex-1">
       <SafeAreaView className="flex-1">
-        <ScrollView contentContainerClassName="grow justify-center">
-          <View className="justify-center items-center px-6 py-5"> {/* container */}
+        <ScrollView contentContainerClassName="grow justify-center items-center"> {/* Added items-center */}
+          <View className="w-full max-w-md px-6 py-5"> {/* container with max-width and padding */}
             {/* <Image source={require('../../../assets/images/logo.png')} className="w-20 h-20 mb-4" /> */}
             <Text className="text-3xl font-bold text-white mb-2 text-center">Create Account</Text> {/* title */}
             <Text className="text-base text-gray-300 mb-8 text-center">Join FaithLink Cars today!</Text> {/* subtitle */}
