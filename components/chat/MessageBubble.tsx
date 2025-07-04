@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { ChatMessage, Timestamp } from '../../types'; // Assuming types is at root
 
 interface MessageBubbleProps {
@@ -101,11 +101,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     paddingHorizontal: 12,
     borderRadius: 18,
-    elevation: 1, // Subtle shadow for Android
-    shadowColor: '#000', // Subtle shadow for iOS
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
-    shadowRadius: 1,
+    // boxShadow replaces deprecated shadow* props
+    boxShadow: '0px 1px 1px rgba(0,0,0,0.05)',
   },
   myBubble: {
     backgroundColor: '#3B82F6', // Tailwind blue-500

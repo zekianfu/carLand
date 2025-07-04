@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { View, Text, StyleSheet, StyleProp, ViewStyle, TextStyle } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
 
 interface DetailSectionCardProps {
   title?: string;
@@ -31,11 +31,8 @@ const styles = StyleSheet.create({
     marginHorizontal: 16,
     marginBottom: 16,
     padding: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 }, // Consistent with FormFieldWrapper
-    shadowOpacity: 0.1,
-    shadowRadius: 5, // Slightly larger radius for detail cards
-    elevation: 3,
+    // boxShadow replaces deprecated shadow* props
+    boxShadow: '0px 2px 5px rgba(0,0,0,0.1)',
   },
   noPaddingCard: {
     padding: 0,

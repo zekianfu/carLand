@@ -3,8 +3,8 @@ import { Timestamp } from '../utils/timestamp'; // Mock Timestamp
 
 // Mock FirebaseUser type (subset of what @react-native-firebase/auth User provides)
 export const mockUsers: Record<string, FirebaseUser> = {
-  'user1': {
-    uid: 'user1',
+  'user1@example.com': {
+    uid: 'user1@example.com',
     email: 'user1@example.com',
     displayName: 'Alice Wonderland',
     photoURL: 'https://randomuser.me/api/portraits/women/1.jpg',
@@ -14,11 +14,11 @@ export const mockUsers: Record<string, FirebaseUser> = {
       creationTime: new Date('2023-01-01T10:00:00Z').toISOString(),
       lastSignInTime: new Date('2023-10-26T10:00:00Z').toISOString(),
     },
-    providerId: 'password', // or 'google.com'
-    // Add other properties if your app uses them from the FirebaseUser object
-  } as FirebaseUser, // Cast to FirebaseUser to satisfy type, actual FirebaseUser is more complex
-  'user2': {
-    uid: 'user2',
+    providerId: 'password',
+    password: 'password',
+  } as FirebaseUser,
+  'user2@example.com': {
+    uid: 'user2@example.com',
     email: 'user2@example.com',
     displayName: 'Bob The Builder',
     photoURL: 'https://randomuser.me/api/portraits/men/1.jpg',
@@ -29,13 +29,14 @@ export const mockUsers: Record<string, FirebaseUser> = {
       lastSignInTime: new Date('2023-10-25T11:00:00Z').toISOString(),
     },
     providerId: 'password',
+    password: 'password',
   } as FirebaseUser,
 };
 
 
 export const mockUserProfiles: Record<string, UserProfile> = {
-  'user1': {
-    id: 'user1',
+  'user1@example.com': {
+    id: 'user1@example.com',
     email: 'user1@example.com',
     name: 'Alice Wonderland',
     profilePicUrl: 'https://randomuser.me/api/portraits/women/1.jpg',
@@ -44,11 +45,9 @@ export const mockUserProfiles: Record<string, UserProfile> = {
     isSeller: true,
     bio: 'Loves to drive and explore new places. Looking for a reliable SUV.',
     location: 'Wonderland, CA',
-    // lastSeen: Timestamp.fromDate(new Date('2023-10-26T10:00:00Z')),
-    // isOnline: true,
   },
-  'user2': {
-    id: 'user2',
+  'user2@example.com': {
+    id: 'user2@example.com',
     email: 'user2@example.com',
     name: 'Bob The Builder',
     profilePicUrl: 'https://randomuser.me/api/portraits/men/1.jpg',
@@ -57,11 +56,9 @@ export const mockUserProfiles: Record<string, UserProfile> = {
     isSeller: false,
     bio: 'Passionate about vintage cars and restoration projects.',
     location: 'Builder City, TX',
-    // lastSeen: Timestamp.fromDate(new Date('2023-10-25T11:00:00Z')),
-    // isOnline: false,
   },
-  'user3': {
-    id: 'user3',
+  'user3@example.com': {
+    id: 'user3@example.com',
     email: 'user3@example.com',
     name: 'Charlie Brown',
     profilePicUrl: 'https://randomuser.me/api/portraits/men/2.jpg',

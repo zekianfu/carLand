@@ -1,5 +1,5 @@
 import React, { ReactNode } from 'react';
-import { View, Text, StyleSheet, ViewStyle, TextStyle, StyleProp } from 'react-native';
+import { StyleProp, StyleSheet, Text, TextStyle, View, ViewStyle } from 'react-native';
 
 interface FormFieldWrapperProps {
   label?: string;
@@ -36,11 +36,8 @@ const styles = StyleSheet.create({
     marginBottom: 12, // Equivalent to mb-3
     paddingHorizontal: 16, // Equivalent to px-4
     paddingVertical: 12, // Equivalent to py-3
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1, // Approximation of shadow-md
-    shadowRadius: 4,    // Approximation of shadow-md
-    elevation: 3,       // For Android shadow
+    // boxShadow replaces deprecated shadow* props
+    boxShadow: '0px 2px 4px rgba(0,0,0,0.1)',
   },
   label: {
     color: '#374151', // Equivalent to text-gray-700

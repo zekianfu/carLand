@@ -1,33 +1,30 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import React, { createContext, useContext, useState } from 'react';
+import { addMockUser, findMockUserByEmail } from '../mockData/users';
 
 WebBrowser.maybeCompleteAuthSession();
 
 // Define a more structured User type
 export interface User {
-  id?: string; // Google User ID
+  id?: string; // Google User ID or Firebase UID
   email?: string;
   name?: string;
   photoUrl?: string;
   accessToken?: string;
-  // Add other fields as needed from Google or your app's user profile
-  // For email/password users, structure might be different or overlap
   isEmailPasswordUser?: boolean;
-  displayName?: string; // For email/password users specifically if name from Google is separate
+  displayName?: string;
 }
 
 interface AuthContextType {
-  user: User | null; // Use the User interface
-  isLoading: boolean; // Combined loading state for initial auth check and active authentication
-  isAuthenticating: boolean; // Specifically for active login/signup process
+  user: User | null;
+  isLoading: boolean;
+  isAuthenticating: boolean;
   authError: Error | null;
   signInWithEmailPassword: (email: string, password: string) => Promise<void>;
   signUpWithEmailPassword: (email: string, password: string, displayName: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>; // This will trigger the promptAsync
+  signInWithGoogle: () => Promise<void>;
   signOutUser: () => Promise<void>;
-  // userProfile might be needed if you fetch more details from your own backend
-  // userProfile: UserProfile | null;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -35,12 +32,6 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 interface AuthProviderProps {
   children: React.ReactNode;
 }
-
-// Dummy users for demo purposes (move outside component to persist across renders)
-const mockUsers: { [key: string]: { email: string; displayName: string } } = {
-  'user1': { email: 'test@example.com', displayName: 'Test User' },
-  'user2': { email: 'demo@example.com', displayName: 'Demo User' },
-};
 
 export const AuthProvider = ({ children }: AuthProviderProps) => {
   const [user, setUser] = useState<any>(null);
@@ -113,16 +104,48 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     }
   };
 
+  // Use the robust mock user system for email/password auth
   const signUpWithEmailPassword = async (email: string, password: string, displayName: string) => {
     setIsAuthenticating(true);
     setAuthError(null);
     try {
-      // Add to mock users (for demo only, not persistent)
-      mockUsers[email] = { email, displayName }; // Keep mock user structure simple
+      // Check if user already exists
+      const existing = findMockUserByEmail(email);
+      if (existing) throw new Error('User already exists');
+      // Create new mock user and profile
+      const newUser = {
+        uid: email,
+        email,
+        displayName,
+        photoURL: '',
+        emailVerified: true,
+        isAnonymous: false,
+        metadata: {
+          creationTime: new Date().toISOString(),
+          lastSignInTime: new Date().toISOString(),
+        },
+        providerId: 'password',
+        password,
+      };
+      const newProfile = {
+        id: email,
+        email,
+        name: displayName,
+        profilePicUrl: '',
+        phoneNumber: '',
+        joinedAt: { toDate: () => new Date() },
+        isSeller: false,
+        bio: '',
+        location: '',
+      };
+      addMockUser(newUser, newProfile);
       setUser({
-        email: email,
-        name: displayName, // Use 'name' for consistency with Google profile
-        isEmailPasswordUser: true
+        id: newUser.uid,
+        email: newUser.email,
+        name: newUser.displayName,
+        photoUrl: newUser.photoURL,
+        isEmailPasswordUser: true,
+        displayName: newUser.displayName,
       });
       setAuthError(null);
     } catch (e) {
@@ -137,16 +160,19 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     setIsAuthenticating(true);
     setAuthError(null);
     try {
-      const foundUser = Object.values(mockUsers).find(u => u.email === email);
-      if (foundUser) {
+      const foundUser = findMockUserByEmail(email);
+      if (foundUser && foundUser.password === password) {
         setUser({
+          id: foundUser.uid,
           email: foundUser.email,
-          name: foundUser.displayName, // Use 'name'
-          isEmailPasswordUser: true
+          name: foundUser.displayName,
+          photoUrl: foundUser.photoURL,
+          isEmailPasswordUser: true,
+          displayName: foundUser.displayName,
         });
         setAuthError(null);
       } else {
-        throw new Error('User not found or incorrect password'); // Generic message for security
+        throw new Error('User not found or incorrect password');
       }
     } catch (e) {
       setAuthError(e as Error);

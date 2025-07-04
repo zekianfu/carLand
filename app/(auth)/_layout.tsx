@@ -1,6 +1,6 @@
-import React from 'react';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
+import React from 'react';
 
 export default function AuthLayout() {
   return (
@@ -15,7 +15,7 @@ export default function AuthLayout() {
           headerTitleStyle: {
             fontWeight: 'bold',
           },
-          headerBackTitleVisible: false,
+          // headerBackTitleVisible is deprecated and can be removed or replaced if needed
         }}
       >
         <Stack.Screen
