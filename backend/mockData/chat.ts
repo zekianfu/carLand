@@ -2,6 +2,10 @@ import { ChatMessage, ChatRoom, UserProfile } from '../types'; // Adjust path as
 import { Timestamp } from '../utils/timestamp'; // Mock Timestamp
 import { mockUserProfiles, getMockUserProfile } from './users';
 
+const generateMockOneOnOneRoomId = (userId1: string, userId2: string): string => {
+  return userId1 < userId2 ? `${userId1}_${userId2}` : `${userId2}_${userId1}`;
+};
+
 const user1Email = 'user1@example.com';
 const user2Email = 'user2@example.com';
 const user3Email = 'user3@example.com';
@@ -128,10 +132,6 @@ export const getMockUserChatRooms = (currentUserId: string): ChatRoom[] => {
         }
     }))
     .sort((a, b) => (b.updatedAt as Date).getTime() - (a.updatedAt as Date).getTime()); // Newest updated first
-};
-
-const generateMockOneOnOneRoomId = (userId1: string, userId2: string): string => {
-  return userId1 < userId2 ? `${userId1}_${userId2}` : `${userId2}_${userId1}`;
 };
 
 export const getOrCreateMockChatRoom = (
