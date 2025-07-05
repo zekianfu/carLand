@@ -109,7 +109,7 @@ export const mockMessages: Record<string, ChatMessage[]> = {
 
 // Sort messages in each room by timestamp ascending (oldest first for display)
 for (const roomId in mockMessages) {
-  mockMessages[roomId].sort((a, b) => (a.timestamp as Date).getTime() - (b.timestamp as Date).getTime());
+  mockMessages[roomId].sort((a, b) => a.timestamp.toMillis() - b.timestamp.toMillis());
 }
 
 
@@ -131,7 +131,7 @@ export const getMockUserChatRooms = (currentUserId: string): ChatRoom[] => {
                 .filter(msg => msg.senderId !== currentUserId && !msg.isReadBy.includes(currentUserId)).length
         }
     }))
-    .sort((a, b) => (b.updatedAt as Date).getTime() - (a.updatedAt as Date).getTime()); // Newest updated first
+    .sort((a, b) => b.updatedAt.toMillis() - a.updatedAt.toMillis()); // Newest updated first
 };
 
 export const getOrCreateMockChatRoom = (
@@ -181,7 +181,7 @@ export const getMockMessages = (
 ): { messages: ChatMessage[], newLastVisibleId: string | null, hasMore: boolean } => {
   const roomMessages = (mockMessages[roomId] || []).concat(newMockMessages[roomId] || []);
   // Sort descending to easily get latest for pagination (opposite of display order)
-  roomMessages.sort((a, b) => (b.timestamp as Date).getTime() - (a.timestamp as Date).getTime());
+  roomMessages.sort((a, b) => b.timestamp.toMillis() - a.timestamp.toMillis());
 
   let startIndex = 0;
   if (lastVisibleMessageId) {
