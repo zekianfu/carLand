@@ -17,7 +17,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 
 import SpecChip from '@/components/details/SpecChip';
 import { useAuth } from '@/context/AuthContext';
-import { getOrCreateOneOnOneChatRoom, getUserProfile, subscribeToCarById } from '@/services/firebaseService';
+import { getOrCreateOneOnOneChatRoom, getUserProfile, subscribeToCarById } from '@/backend/services/firebaseService';
 import { Car, UserProfile } from '@/types'; // Adjusted path
 // import CarCard from '../../../components/carCard'; // For similar cars, if implemented
 

@@ -9,7 +9,7 @@ import { CarListSkeleton } from '@/components/common/SkeletonLoader';
 import FeaturedCars from '@/components/FeaturedCars';
 import FilterBar from '@/components/feed/FilterBar';
 import { useDebounce } from '@/hooks/useDebounce';
-import { subscribeToCars } from '@/services/firebaseService';
+import { subscribeToCars } from '@/backend/services/firebaseService';
 import { Car, CarFilters } from '@/types';
 
 const getNumColumns = (width: number) => {

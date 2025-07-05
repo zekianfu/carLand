@@ -1,7 +1,7 @@
 import * as Google from 'expo-auth-session/providers/google';
 import * as WebBrowser from 'expo-web-browser';
 import React, { createContext, useContext, useState } from 'react';
-import { addMockUser, findMockUserByEmail } from '../mockData/users';
+import { addMockUser, findMockUserByEmail } from '@/backend/mockData/users';
 
 WebBrowser.maybeCompleteAuthSession();
 
