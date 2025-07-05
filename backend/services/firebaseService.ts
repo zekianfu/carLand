@@ -3,8 +3,8 @@
 // All direct Firebase SDK imports and calls have been removed.
 // Comments like "// Firebase REMOVED:" indicate where original Firebase logic was.
 
-import { Car, CarFilters, ChatMessage, ChatRoom, UserProfile } from '../types';
-import { Timestamp } from '../utils/timestamp'; // Using mock Timestamp
+import { Car, CarFilters, ChatMessage, ChatRoom, UserProfile } from '@/types';
+import { Timestamp } from '@/utils/timestamp'; // Using mock Timestamp
 
 // Mock data imports
 import { addMockCar as addMockCarInternal, deleteMockCar as deleteMockCarInternal, getMockCarById, getMockCars, updateMockCar as updateMockCarInternal } from '../mockData/cars';
