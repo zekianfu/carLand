@@ -10,17 +10,33 @@ const inactiveTabColor = '#9CA3AF'; // Tailwind gray-400, good for dark backgrou
 const darkBackgroundColor = 'rgba(31, 41, 55, 0.85)'; // Dark gray with transparency for Android tab bar
 const darkerBlurTintColor = 'dark'; // For iOS BlurView
 
-const TabBarIcon = ({ focused, icon }: any) => (
-  <Image
-    source={icon}
-    style={{
-      width: 24,
-      height: 24,
-      tintColor: focused ? amberColor : inactiveTabColor, // Use defined colors
-    }}
-    resizeMode="contain"
-  />
-);
+import { Ionicons } from '@expo/vector-icons'; // Import Ionicons
+
+const TabBarIcon = ({ focused, icon, vectorIconName }: { focused: boolean; icon?: any; vectorIconName?: keyof typeof Ionicons.glyphMap }) => {
+  if (vectorIconName) {
+    return (
+      <Ionicons
+        name={vectorIconName}
+        size={26} // Adjusted size for vector icons to better match image icons
+        color={focused ? amberColor : inactiveTabColor}
+      />
+    );
+  }
+  if (icon) {
+    return (
+      <Image
+        source={icon}
+        style={{
+          width: 24,
+          height: 24,
+          tintColor: focused ? amberColor : inactiveTabColor,
+        }}
+        resizeMode="contain"
+      />
+    );
+  }
+  return null; // Or a default placeholder icon
+};
 
 
 const CustomTabBarBackground = (props: any) => (
@@ -111,11 +127,22 @@ const Layout = () => {
             ),
           }}
         />
+        {/* New Listings Tab */}
+        <Tabs.Screen
+          name="listings" // This should match the filename app/(tabs)/listings.tsx
+          options={{
+            headerShown: false, // We set the header inside listings.tsx using Stack.Screen
+            title: 'Cars',    // Tab title
+            tabBarIcon: ({ focused }) => (
+              <TabBarIcon focused={focused} vectorIconName="car-sport-outline" />
+            ),
+          }}
+        />
         <Tabs.Screen
           name="sermon"
           options={{
             headerShown: false,
-            title: 'Parts',
+            title: 'Parts', // This seems to be a placeholder from the original app
             tabBarIcon: ({ focused }) => (
               <TabBarIcon focused={focused} icon={images.Sermon} />
             ),
@@ -125,7 +152,7 @@ const Layout = () => {
           name="event"
           options={{
             headerShown: false,
-            title: 'List',
+            title: 'List', // This seems to be a placeholder from the original app
             tabBarIcon: ({ focused }) => (
               <TabBarIcon focused={focused} icon={images.Event} />
             ),
@@ -157,8 +184,9 @@ const Layout = () => {
   );
 };
 
-export default Layout;
+// Remove duplicate export if present
+// export default Layout;
 
 const styles = StyleSheet.create({});
 
-export default Layout;
+export default Layout; // Ensure only one default export
