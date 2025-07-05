@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { useRouter } from 'expo-router';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, FlatList, Text, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, FlatList, Text, View, Platform } from 'react-native'; // Removed useWindowDimensions
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import CarCard from '@/components/carCard';
@@ -12,17 +12,10 @@ import { useDebounce } from '@/hooks/useDebounce';
 import { subscribeToCars } from '@/backend/services/firebaseService';
 import { Car, CarFilters } from '@/types';
 
-const getNumColumns = (width: number) => {
-  if (width >= 1280) return 4; // xl screens
-  if (width >= 1024) return 3; // lg screens
-  if (width >= 768) return 2;  // md screens
-  return 1; // mobile
-};
+const ITEMS_PER_PAGE = 12; // Fetch more for grid layouts
 
 const FeedScreen: React.FC = () => {
   const router = useRouter();
-  const { width } = useWindowDimensions();
-  const numColumns = getNumColumns(width);
 
   const [cars, setCars] = useState<Car[]>([]);
   const [loading, setLoading] = useState(true);
@@ -47,9 +40,7 @@ const FeedScreen: React.FC = () => {
     setHasMore(true);
 
     const unsubscribe = subscribeToCars(
-      currentFilters,
-      null,
-      10,
+      currentFilters, null, ITEMS_PER_PAGE,
       (fetchedCars, newLastVisible, moreAvailable) => {
         setCars(fetchedCars);
         setLastVisibleDoc(newLastVisible);
@@ -57,23 +48,20 @@ const FeedScreen: React.FC = () => {
         setLoading(false);
         setError(null);
       },
-      () => {
+      (err) => {
+        console.error("Error fetching cars:", err);
         setError("Failed to load cars. Please try again.");
         setLoading(false);
       }
     );
-
     return () => unsubscribe();
   }, [currentFilters]);
 
   const handleLoadMore = useCallback(() => {
     if (!hasMore || loadingMore || loading) return;
-
     setLoadingMore(true);
     const unsubscribe = subscribeToCars(
-      currentFilters,
-      lastVisibleDoc,
-      10,
+      currentFilters, lastVisibleDoc, ITEMS_PER_PAGE,
       (fetchedCars, newLastVisible, moreAvailable) => {
         setCars(prev => [...prev, ...fetchedCars]);
         setLastVisibleDoc(newLastVisible);
@@ -81,7 +69,8 @@ const FeedScreen: React.FC = () => {
         setLoadingMore(false);
         unsubscribe();
       },
-      () => {
+      (err) => {
+        console.error("Error loading more cars:", err);
         setLoadingMore(false);
         unsubscribe();
       }
@@ -92,75 +81,85 @@ const FeedScreen: React.FC = () => {
     setFilters(newFilters);
   }, []);
 
-  const navigateToCarDetails = (carId: string) => {
+  const navigateToCarDetails = useCallback((carId: string) => {
     router.push(`/buyDetail/carDetail?carId=${carId}`);
-  };
+  }, [router]);
 
-  const renderCarItem = ({ item }: { item: Car }) => (
-    <View
-      className="p-2 w-full md:w-1/2 lg:w-1/3 xl:w-1/4 max-w-[400px] min-w-[250px] self-center"
-    >
+  const renderCarItem = useCallback(({ item }: { item: Car }) => (
+    <View className="w-full p-1.5 sm:p-2 sm:w-1/2 md:w-1/2 lg:w-1/3 xl:w-1/4">
       <CarCard car={item} onPress={navigateToCarDetails} />
     </View>
-  );
+  ), [navigateToCarDetails]);
 
-  const ListEmptyComponent = () => {
-    if (loading) return null;
+  const ListEmptyComponent = useCallback(() => {
+    if (loading && cars.length === 0) return null;
     return (
-      <View className="flex-1 justify-center items-center p-8 mt-12">
-        <Text className="text-base text-gray-400 text-center">
-          {error ? error : "No cars found matching your criteria. Try adjusting the filters!"}
+      <View className="flex-1 justify-center items-center py-10 mt-10">
+        <Text className="text-lg text-gray-400 text-center mb-2">
+          {error ? error : "No cars found matching your criteria."}
+        </Text>
+        <Text className="text-base text-gray-500 text-center">
+          Try adjusting the filters or check back later!
         </Text>
       </View>
     );
-  };
+  }, [loading, error, cars.length]);
 
-  const ListFooterComponent = () => {
+  const ListFooterComponent = useCallback(() => {
     if (loadingMore) {
-      return <ActivityIndicator size="large" color="#FFF" className="my-5" />;
+      return <ActivityIndicator size="large" color="#F59E0B" className="my-8" />;
     }
     if (!hasMore && !loading && cars.length > 0) {
-      return <Text className="text-center text-gray-400 py-5 text-sm">You've seen all cars!</Text>;
+      return <Text className="text-center text-gray-400 py-8 text-base">You've seen all available cars!</Text>;
     }
     return null;
-  };
+  }, [loadingMore, hasMore, loading, cars.length]);
 
-  // 🧊 Skeleton loader state
-  if (loading && cars.length === 0 && !error) {
-    return (
-      <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
-        <SafeAreaView className="flex-1 px-2 md:px-8 xl:px-24">
-          <FilterBar onApplyFilters={handleApplyFilters} initialFilters={filters} />
-          <CarListSkeleton />
-        </SafeAreaView>
-      </LinearGradient>
-    );
-  }
+  // Memoize ListHeaderComponent as its props (filters, handleApplyFilters) change.
+  const ListHeader = useMemo(() => (
+    <View className="w-full">
+      <FilterBar onApplyFilters={handleApplyFilters} initialFilters={filters} />
+      <FeaturedCars />
+      <Text className="text-2xl font-bold text-white px-2 sm:px-0 my-4">Browse Vehicles</Text>
+    </View>
+  ), [handleApplyFilters, filters]); // Dependencies for ListHeader
+
+  // MainContent can be a sub-component or just JSX structure
+  // No need to memoize MainContent itself if its props don't change frequently or if FlatList handles memoization internally.
+  const MainContent = (
+    <FlatList
+      data={cars}
+      renderItem={renderCarItem}
+      keyExtractor={(item) => item.id}
+      numColumns={1} // Set to 1 for web-like flexbox wrapping handled by item styles
+      showsVerticalScrollIndicator={false}
+      contentContainerStyle={{
+        paddingBottom: 32,
+        paddingTop: Platform.OS === 'web' ? 8 : 8,
+        ...(Platform.OS === 'web' && { display: 'flex', flexDirection: 'row', flexWrap: 'wrap' })
+      }}
+      ListHeaderComponent={ListHeader}
+      ListEmptyComponent={ListEmptyComponent}
+      ListFooterComponent={ListFooterComponent}
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.7}
+      initialNumToRender={ITEMS_PER_PAGE} // Render enough items to fill the screen initially
+      maxToRenderPerBatch={ITEMS_PER_PAGE} // How many items to render per batch
+      windowSize={21} // Default: (2*10 + 1), defines the virtual window of items
+    />
+  );
 
   return (
     <LinearGradient colors={['#1F2937', '#4B5563']} className="flex-1">
-      <SafeAreaView className="flex-1 px-2 md:px-8 xl:px-24">
-        <FlatList
-          data={cars}
-          renderItem={renderCarItem}
-          keyExtractor={(item) => item.id}
-          numColumns={numColumns}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={{ paddingBottom: 24, paddingTop: 8 }}
-          // 🪄 keep last row left‑aligned
-          columnWrapperStyle={numColumns > 1 ? { justifyContent: 'flex-start' } : undefined}
-          ListHeaderComponent={
-            <>
-              <FilterBar onApplyFilters={handleApplyFilters} initialFilters={filters} />
-              <FeaturedCars />
-              <View className="h-4" />
-            </>
-          }
-          ListEmptyComponent={ListEmptyComponent}
-          ListFooterComponent={ListFooterComponent}
-          onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
-        />
+      <SafeAreaView className="flex-1 px-2 sm:px-4 md:px-6 lg:px-8 xl:px-12">
+        {loading && cars.length === 0 && !error ? (
+          <>
+            {ListHeader}
+            <CarListSkeleton count={ITEMS_PER_PAGE / 2} /> {/* Show a reasonable number of skeletons */}
+          </>
+        ) : (
+          MainContent // Render the FlatList structure
+        )}
       </SafeAreaView>
     </LinearGradient>
   );
