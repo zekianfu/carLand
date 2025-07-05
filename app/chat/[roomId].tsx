@@ -25,7 +25,7 @@ import {
   sendMessage,
   markMessagesAsRead,
   // getUserProfile, // No longer needed here as profile comes from context
-} from '@/services/firebaseService'; // Adjusted path
+} from '@/backend/services/firebaseService'; // Adjusted path
 import { useAuth } from '@/context/AuthContext'; // Import useAuth
 
 // Mock current user ID will be removed.
